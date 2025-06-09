@@ -16,7 +16,7 @@ func Fetch(url string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("status code is not 200")
+		return nil, fmt.Errorf("unexpected status code: %v", resp.StatusCode)
 	}
 
 	return io.ReadAll(resp.Body)

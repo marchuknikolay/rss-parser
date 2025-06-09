@@ -10,11 +10,9 @@ import (
 func Parse(bs []byte) (model.Rss, error) {
 	var rss model.Rss
 
-	err := xml.Unmarshal(bs, &rss)
-
-	if err != nil {
-		err = fmt.Errorf("failed unmarshalling xml data: %v", err)
+	if err := xml.Unmarshal(bs, &rss); err != nil {
+		return model.Rss{}, fmt.Errorf("failed unmarshalling xml data: %v", err)
 	}
 
-	return rss, err
+	return rss, nil
 }

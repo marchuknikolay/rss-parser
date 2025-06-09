@@ -1,1 +1,1 @@
-# rss-parser
+Go-based RSS parser for fetching and parsing RSS feed data

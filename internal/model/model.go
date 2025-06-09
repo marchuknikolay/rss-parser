@@ -19,7 +19,7 @@ type Channel struct {
 type Item struct {
 	Title       string   `xml:"title"`
 	Description string   `xml:"description"`
-	PubDate     DateTime `xml:"pubDate"` // ToDo: replace by custom type
+	PubDate     DateTime `xml:"pubDate"`
 }
 
 type DateTime time.Time

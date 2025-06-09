@@ -1,16 +1,17 @@
 package main
 
 import (
-	"encoding/xml"
-	"io"
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/marchuknikolay/rss-parser/internal/model"
+	"github.com/marchuknikolay/rss-parser/internal/fetcher"
+	"github.com/marchuknikolay/rss-parser/internal/parser"
 )
 
-const expectedArgsCount = 2
+const (
+	expectedArgsCount = 2
+	urlIndex          = 1
+)
 
 func main() {
 	actualArgsCount := len(os.Args)
@@ -19,31 +20,18 @@ func main() {
 		log.Fatalf("Expected args count is %v, but actual is %v\n", expectedArgsCount, actualArgsCount)
 	}
 
-	url := os.Args[1]
-	resp, err := http.Get(url)
+	url := os.Args[urlIndex]
+
+	bs, err := fetcher.Fetch(url)
 
 	if err != nil {
-		log.Fatalf("Error getting data from %v, %v\n", url, err)
+		log.Fatalf("Error fetching data: %v\n", err)
 	}
 
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalln("Status code is not 200")
-	}
-
-	bs, err := io.ReadAll(resp.Body)
+	rss, err := parser.Parse(bs)
 
 	if err != nil {
-		log.Fatalf("Error reading response body: %v\n", err)
-	}
-
-	var rss model.Rss
-
-	err = xml.Unmarshal(bs, &rss)
-
-	if err != nil {
-		log.Fatalf("Eror unmarshalling xml data: %v\n", err)
+		log.Fatalf("Error parsing data: %v\n", err)
 	}
 
 	log.Println(rss)

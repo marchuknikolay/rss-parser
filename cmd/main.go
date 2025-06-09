@@ -6,6 +6,7 @@ import (
 
 	"github.com/marchuknikolay/rss-parser/internal/fetcher"
 	"github.com/marchuknikolay/rss-parser/internal/parser"
+	"github.com/marchuknikolay/rss-parser/internal/printer"
 )
 
 const (
@@ -34,5 +35,5 @@ func main() {
 		log.Fatalf("Error parsing data: %v\n", err)
 	}
 
-	log.Println(rss)
+	printer.PrintRss(rss)
 }

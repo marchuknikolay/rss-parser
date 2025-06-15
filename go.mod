@@ -1,3 +1,3 @@
 module github.com/marchuknikolay/rss-parser
 
-go 1.18.1
+go 1.21

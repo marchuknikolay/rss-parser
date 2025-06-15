@@ -24,6 +24,8 @@ type Item struct {
 
 type DateTime time.Time
 
+const customDateTimeLayout = "Mon, _2 Jan 2006 15:04:05 -0700"
+
 func (dt *DateTime) UnmarshalXML(d *xml.Decoder, se xml.StartElement) error {
 	var dtStr string
 
@@ -32,7 +34,7 @@ func (dt *DateTime) UnmarshalXML(d *xml.Decoder, se xml.StartElement) error {
 		return err
 	}
 
-	t, err := time.Parse(time.RFC1123Z, dtStr)
+	t, err := time.Parse(customDateTimeLayout, dtStr)
 	if err != nil {
 		return err
 	}

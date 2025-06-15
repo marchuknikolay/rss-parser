@@ -8,9 +8,8 @@ import (
 
 func Fetch(url string) ([]byte, error) {
 	resp, err := http.Get(url)
-
 	if err != nil {
-		return nil, fmt.Errorf("failed getting data from %v, %v", url, err)
+		return nil, fmt.Errorf("failed getting data from %v, %w", url, err)
 	}
 
 	defer resp.Body.Close()

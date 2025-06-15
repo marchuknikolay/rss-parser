@@ -15,22 +15,18 @@ const (
 )
 
 func main() {
-	actualArgsCount := len(os.Args)
-
-	if actualArgsCount != expectedArgsCount {
+	if actualArgsCount := len(os.Args); actualArgsCount != expectedArgsCount {
 		log.Fatalf("Expected args count is %v, but actual is %v\n", expectedArgsCount, actualArgsCount)
 	}
 
 	url := os.Args[urlIndex]
 
 	bs, err := fetcher.Fetch(url)
-
 	if err != nil {
 		log.Fatalf("Error fetching data: %v\n", err)
 	}
 
 	rss, err := parser.Parse(bs)
-
 	if err != nil {
 		log.Fatalf("Error parsing data: %v\n", err)
 	}

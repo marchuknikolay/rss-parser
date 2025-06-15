@@ -28,13 +28,11 @@ func (dt *DateTime) UnmarshalXML(d *xml.Decoder, se xml.StartElement) error {
 	var dtStr string
 
 	err := d.DecodeElement(&dtStr, &se)
-
 	if err != nil {
 		return err
 	}
 
 	t, err := time.Parse(time.RFC1123Z, dtStr)
-
 	if err != nil {
 		return err
 	}

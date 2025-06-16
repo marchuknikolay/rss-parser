@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -v -o rss-parser ./cmd
+RUN go build -v -o ./bin/rss-parser ./cmd/cli
 
-ENTRYPOINT ["./rss-parser"]
+ENTRYPOINT ["./bin/rss-parser"]
 CMD ["https://feeds.simplecast.com/qm_9xx0g"]

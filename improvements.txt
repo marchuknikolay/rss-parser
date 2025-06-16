@@ -1,0 +1,6 @@
+ToDo:
+1. go mod tidy in Dockerfile
+
+Improvements:
+1. Use some package for parsing cmd arguments, e.g. flag
+2. Create web application

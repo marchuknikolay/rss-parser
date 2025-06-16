@@ -1,6 +1,3 @@
-ToDo:
-1. go mod tidy in Dockerfile
-
 Improvements:
 1. Use .env file instead of hardcoding
 2. Create help for cli and migrate

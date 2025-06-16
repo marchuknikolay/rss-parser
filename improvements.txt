@@ -3,4 +3,5 @@ ToDo:
 
 Improvements:
 1. Use some package for parsing cmd arguments, e.g. flag
-2. Create web application
+2. Create help for cli and migrate
+3. Create web application

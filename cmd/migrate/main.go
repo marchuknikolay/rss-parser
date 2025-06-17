@@ -27,7 +27,7 @@ func main() {
 	}
 
 	dbString := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable",
-		dbConfig.Host, dbConfig.User, dbConfig.Password, dbConfig.Password, dbConfig.ContainerPort)
+		dbConfig.Host, dbConfig.User, dbConfig.Password, dbConfig.Name, dbConfig.ContainerPort)
 
 	db, err := goose.OpenDBWithDriver(dbDriver, dbString)
 	if err != nil {

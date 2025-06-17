@@ -1,6 +1,5 @@
 Improvements:
-1. Use .env file instead of hardcoding
-2. Create help for cli and migrate
-3. Create README.md for cli and migrate
-4. Use some package for parsing cmd arguments, e.g. flag
-5. Create web application
+1. Create help for cli and migrate
+2. Create README.md for cli and migrate
+3. Use some package for parsing cmd arguments, e.g. flag
+4. Create web application

@@ -4,14 +4,15 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/pressly/goose"
 )
 
 const (
 	minArgsCount  = 2
 	dbDriver      = "postgres"
-	migrationsDir = "migrations"
-	dbString      = "host=localhost user=user password=password dbname=rss_feed port=5432"
+	migrationsDir = "internal/storage/migrations"
+	dbString      = "host=localhost user=postgres password=1 dbname=rss_feed port=5432 sslmode=disable"
 )
 
 func main() {

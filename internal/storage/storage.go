@@ -2,29 +2,25 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/marchuknikolay/rss-parser/internal/model"
 )
 
-func NewConnection(connString string) (*pgx.Conn, error) {
-	return pgx.Connect(context.Background(), connString)
+func NewConnection(connString string) (*pgxpool.Pool, error) {
+	return pgxpool.New(context.Background(), connString)
 }
 
-func Close(conn *pgx.Conn) error {
-	if conn != nil {
-		return conn.Close(context.Background())
-	}
-
-	return fmt.Errorf("conn is nil")
+func Close(pool *pgxpool.Pool) {
+	pool.Close()
 }
 
-func SaveItems(conn *pgx.Conn, items []model.Item) error {
+func SaveItems(pool *pgxpool.Pool, items []model.Item, channelId int) error {
 	for _, item := range items {
-		_, err := conn.Exec(context.Background(), "INSERT INTO items (title, description, pub_date) VALUES ($1, $2, $3)",
-			item.Title, item.Description, item.PubDate)
+		_, err := pool.Exec(context.Background(),
+			"INSERT INTO items (title, description, pub_date, channel_id) VALUES ($1, $2, $3, $4)",
+			item.Title, item.Description, item.PubDate, channelId)
 
 		if err != nil {
 			return err
@@ -34,8 +30,9 @@ func SaveItems(conn *pgx.Conn, items []model.Item) error {
 	return nil
 }
 
-func FetchItems(conn *pgx.Conn) ([]model.Item, error) {
-	rows, err := conn.Query(context.Background(), "SELECT title, description, pub_date FROM items")
+func FetchItemsByChannelId(pool *pgxpool.Pool, channelId int) ([]model.Item, error) {
+	rows, err := pool.Query(context.Background(),
+		"SELECT title, description, pub_date FROM items WHERE channel_id = $1", channelId)
 	if err != nil {
 		return nil, err
 	}
@@ -58,4 +55,55 @@ func FetchItems(conn *pgx.Conn) ([]model.Item, error) {
 	}
 
 	return items, nil
+}
+
+func SaveChannels(pool *pgxpool.Pool, channels []model.Channel) error {
+	for _, channel := range channels {
+		var channelId int
+
+		err := pool.QueryRow(context.Background(),
+			"INSERT INTO channels (title, language, description) VALUES ($1, $2, $3) RETURNING id",
+			channel.Title, channel.Language, channel.Description).Scan(&channelId)
+
+		if err != nil {
+			return err
+		}
+
+		if err = SaveItems(pool, channel.Items, channelId); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func FetchChannels(pool *pgxpool.Pool) ([]model.Channel, error) {
+	rows, err := pool.Query(context.Background(), "SELECT id, title, language, description FROM channels")
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	channels := []model.Channel{}
+
+	for rows.Next() {
+		var (
+			id                           int
+			title, language, description string
+		)
+
+		if err := rows.Scan(&id, &title, &language, &description); err != nil {
+			return nil, err
+		}
+
+		items, err := FetchItemsByChannelId(pool, id)
+		if err != nil {
+			return nil, err
+		}
+
+		channels = append(channels, model.Channel{Title: title, Language: language, Description: description, Items: items})
+	}
+
+	return channels, nil
 }

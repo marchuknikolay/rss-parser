@@ -7,13 +7,13 @@ import (
 )
 
 func PrintRss(rss model.Rss) {
-	channel := rss.Channel
+	for _, channel := range rss.Channels {
+		fmt.Printf("Channel Title: %v\n", channel.Title)
+		fmt.Printf("Channel Language: %v\n", channel.Language)
+		fmt.Printf("Channel Description: %v\n\n", channel.Description)
 
-	fmt.Printf("Channel Title: %v\n", channel.Title)
-	fmt.Printf("Channel Language: %v\n", channel.Language)
-	fmt.Printf("Channel Description: %v\n\n", channel.Description)
-
-	PrintItems(channel.Items)
+		PrintItems(channel.Items)
+	}
 }
 
 func PrintItems(items []model.Item) {

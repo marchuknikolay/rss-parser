@@ -6,7 +6,7 @@ import (
 )
 
 type Rss struct {
-	Channel Channel `xml:"channel"`
+	Channels []Channel `xml:"channel"`
 }
 
 type Channel struct {

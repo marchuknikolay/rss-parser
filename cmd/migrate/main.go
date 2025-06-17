@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 	"github.com/marchuknikolay/rss-parser/internal/config"
 	"github.com/pressly/goose"

@@ -1,4 +1,5 @@
 Improvements:
+- Add one more migration (channels table)
 - Update README
 - Create help for cli and migrate
 - Create README.md for cli and migrate

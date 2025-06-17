@@ -8,6 +8,7 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/config"
 	"github.com/marchuknikolay/rss-parser/internal/fetcher"
 	"github.com/marchuknikolay/rss-parser/internal/parser"
+	"github.com/marchuknikolay/rss-parser/internal/printer"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
@@ -48,7 +49,14 @@ func main() {
 
 	defer storage.Close(conn)
 
-	storage.SaveItems(conn, rss.Channel.Items)
+	if err := storage.SaveItems(conn, rss.Channel.Items); err != nil {
+		log.Fatalf("failed saving items: %v", err)
+	}
 
-	//printer.PrintRss(rss)
+	fetchedItems, err := storage.FetchItems(conn)
+	if err != nil {
+		log.Fatalf("failed fetching items: %v", err)
+	}
+
+	printer.PrintItems(fetchedItems)
 }

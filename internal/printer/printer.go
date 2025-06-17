@@ -13,7 +13,11 @@ func PrintRss(rss model.Rss) {
 	fmt.Printf("Channel Language: %v\n", channel.Language)
 	fmt.Printf("Channel Description: %v\n\n", channel.Description)
 
-	for _, item := range channel.Items {
+	PrintItems(channel.Items)
+}
+
+func PrintItems(items []model.Item) {
+	for _, item := range items {
 		fmt.Println("------------------------------------------------------------------------------")
 		fmt.Printf("Item Title: %v\n", item.Title)
 		fmt.Printf("Item Description: %v\n", item.Description)

@@ -1,5 +1,6 @@
 Improvements:
-1. Create help for cli and migrate
-2. Create README.md for cli and migrate
-3. Use some package for parsing cmd arguments, e.g. flag
-4. Create web application
+- Update README
+- Create help for cli and migrate
+- Create README.md for cli and migrate
+- Use some package for parsing cmd arguments, e.g. flag
+- Create web application

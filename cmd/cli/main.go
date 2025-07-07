@@ -3,39 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/marchuknikolay/rss-parser/internal/config"
-	"github.com/marchuknikolay/rss-parser/internal/fetcher"
-	"github.com/marchuknikolay/rss-parser/internal/model"
-	"github.com/marchuknikolay/rss-parser/internal/parser"
-	"github.com/marchuknikolay/rss-parser/internal/printer"
+	"github.com/marchuknikolay/rss-parser/internal/server"
+	"github.com/marchuknikolay/rss-parser/internal/server/handlers"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
-const (
-	expectedArgsCount = 2
-	urlIndex          = 1
-)
-
 func main() {
-	if actualArgsCount := len(os.Args); actualArgsCount != expectedArgsCount {
-		log.Fatalf("Expected args count is %v, but actual is %v\n", expectedArgsCount, actualArgsCount)
-	}
-
-	url := os.Args[urlIndex]
-
-	bs, err := fetcher.Fetch(url)
-	if err != nil {
-		log.Fatalf("Error fetching data: %v\n", err)
-	}
-
-	rss, err := parser.Parse(bs)
-	if err != nil {
-		log.Fatalf("Error parsing data: %v\n", err)
-	}
-
 	dbConfig, err := config.NewDBConfig()
 	if err != nil {
 		log.Fatalf("failed loading config: %v", err)
@@ -51,14 +27,12 @@ func main() {
 
 	defer storage.Close()
 
-	if err := storage.SaveChannels(rss.Channels); err != nil {
-		log.Fatalf("failed saving channels: %v", err)
-	}
+	handler := handlers.New(storage)
 
-	fetchedChannels, err := storage.FetchChannels()
+	server := server.New("8080", handler.InitRoutes())
+
+	err = server.Start()
 	if err != nil {
-		log.Fatalf("failed fetching channels: %v", err)
+		log.Fatalf("failed starting server: %v", err)
 	}
-
-	printer.PrintRss(model.Rss{Channels: fetchedChannels})
 }

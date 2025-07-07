@@ -1,3 +1,5 @@
 #!/bin/sh
-./bin/migrate up
-./bin/rss-parser $RSS_FEED_URL
+set -e
+
+/app/bin/migrate up
+exec /app/bin/rss-parser

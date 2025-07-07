@@ -8,17 +8,26 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/model"
 )
 
-func NewConnection(connString string) (*pgxpool.Pool, error) {
-	return pgxpool.New(context.Background(), connString)
+type Storage struct {
+	pool *pgxpool.Pool
 }
 
-func Close(pool *pgxpool.Pool) {
-	pool.Close()
+func New(connString string) (*Storage, error) {
+	pool, err := pgxpool.New(context.Background(), connString)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Storage{pool: pool}, nil
 }
 
-func SaveItems(pool *pgxpool.Pool, items []model.Item, channelId int) error {
+func (s *Storage) Close() {
+	s.pool.Close()
+}
+
+func (s *Storage) SaveItems(items []model.Item, channelId int) error {
 	for _, item := range items {
-		_, err := pool.Exec(context.Background(),
+		_, err := s.pool.Exec(context.Background(),
 			"INSERT INTO items (title, description, pub_date, channel_id) VALUES ($1, $2, $3, $4)",
 			item.Title, item.Description, item.PubDate, channelId)
 
@@ -30,8 +39,8 @@ func SaveItems(pool *pgxpool.Pool, items []model.Item, channelId int) error {
 	return nil
 }
 
-func FetchItemsByChannelId(pool *pgxpool.Pool, channelId int) ([]model.Item, error) {
-	rows, err := pool.Query(context.Background(),
+func (s *Storage) FetchItemsByChannelId(channelId int) ([]model.Item, error) {
+	rows, err := s.pool.Query(context.Background(),
 		"SELECT title, description, pub_date FROM items WHERE channel_id = $1", channelId)
 	if err != nil {
 		return nil, err
@@ -57,11 +66,11 @@ func FetchItemsByChannelId(pool *pgxpool.Pool, channelId int) ([]model.Item, err
 	return items, nil
 }
 
-func SaveChannels(pool *pgxpool.Pool, channels []model.Channel) error {
+func (s *Storage) SaveChannels(channels []model.Channel) error {
 	for _, channel := range channels {
 		var channelId int
 
-		err := pool.QueryRow(context.Background(),
+		err := s.pool.QueryRow(context.Background(),
 			"INSERT INTO channels (title, language, description) VALUES ($1, $2, $3) RETURNING id",
 			channel.Title, channel.Language, channel.Description).Scan(&channelId)
 
@@ -69,7 +78,7 @@ func SaveChannels(pool *pgxpool.Pool, channels []model.Channel) error {
 			return err
 		}
 
-		if err = SaveItems(pool, channel.Items, channelId); err != nil {
+		if err = s.SaveItems(channel.Items, channelId); err != nil {
 			return err
 		}
 	}
@@ -77,8 +86,8 @@ func SaveChannels(pool *pgxpool.Pool, channels []model.Channel) error {
 	return nil
 }
 
-func FetchChannels(pool *pgxpool.Pool) ([]model.Channel, error) {
-	rows, err := pool.Query(context.Background(), "SELECT id, title, language, description FROM channels")
+func (s *Storage) FetchChannels() ([]model.Channel, error) {
+	rows, err := s.pool.Query(context.Background(), "SELECT id, title, language, description FROM channels")
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +106,7 @@ func FetchChannels(pool *pgxpool.Pool) ([]model.Channel, error) {
 			return nil, err
 		}
 
-		items, err := FetchItemsByChannelId(pool, id)
+		items, err := s.FetchItemsByChannelId(id)
 		if err != nil {
 			return nil, err
 		}

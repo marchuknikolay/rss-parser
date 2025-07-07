@@ -44,18 +44,18 @@ func main() {
 	connString := fmt.Sprintf("postgres://%v:%v@%v:%v/%v",
 		dbConfig.User, dbConfig.Password, dbConfig.Host, dbConfig.ContainerPort, dbConfig.Name)
 
-	pool, err := storage.NewConnection(connString)
+	storage, err := storage.New(connString)
 	if err != nil {
 		log.Fatalf("failed creating a new database connection: %v", err)
 	}
 
-	defer storage.Close(pool)
+	defer storage.Close()
 
-	if err := storage.SaveChannels(pool, rss.Channels); err != nil {
+	if err := storage.SaveChannels(rss.Channels); err != nil {
 		log.Fatalf("failed saving channels: %v", err)
 	}
 
-	fetchedChannels, err := storage.FetchChannels(pool)
+	fetchedChannels, err := storage.FetchChannels()
 	if err != nil {
 		log.Fatalf("failed fetching channels: %v", err)
 	}

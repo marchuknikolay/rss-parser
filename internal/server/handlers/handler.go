@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/marchuknikolay/rss-parser/internal/server/renderer"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
@@ -19,12 +20,14 @@ func New(storage *storage.Storage) *Handler {
 func (h *Handler) InitRoutes() *echo.Echo {
 	router := echo.New()
 
+	router.Renderer = renderer.New("internal/server/templates/*.gohtml")
+
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
 	router.Pre(middleware.AddTrailingSlash())
 
 	router.GET("/", h.getFeed)
-	router.GET("/feed", h.getFeed)
+	router.GET("/feed/", h.getFeed)
 
 	return router
 }

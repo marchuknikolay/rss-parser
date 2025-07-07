@@ -12,5 +12,5 @@ func (h *Handler) getFeed(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, channels)
+	return c.Render(http.StatusOK, "feed.gohtml", channels)
 }

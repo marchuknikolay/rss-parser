@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>RSS Feed</title>
+</head>
+<body>
+    <h1>Channels</h1>
+    <ul>
+        {{range .}}
+            <li>{{.Title}}</li>
+            <h3>Items</h3>
+            <ul>
+                {{range .Items}}
+                    <li>{{.Title}}</li>
+                {{end}}
+            </ul>
+        {{end}}
+    </ul>
+</body>
+</html>

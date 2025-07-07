@@ -26,7 +26,8 @@ func (h *Handler) InitRoutes() *echo.Echo {
 	router.Use(middleware.Recover())
 	router.Pre(middleware.AddTrailingSlash())
 
-	router.GET("/", h.getFeed)
+	router.Static("/", "public/static")
+
 	router.GET("/feed/", h.getFeed)
 
 	return router

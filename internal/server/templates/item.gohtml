@@ -8,13 +8,8 @@
     <a href="/">Back to Home</a><br>
     <a href="/channels/">Back to Channels</a>
 
-    <h1>Feeds</h1>
-    <ul>
-        {{range .}}
-            <li>
-                <a href="/feeds/{{.Id}}">{{.Title}}</a>
-            </li>
-        {{end}}
-    </ul>
+    <h1>{{.Title}}</h1>
+    <h4>{{.PubDate}}</h4>
+    <p>{{.Description}}</p>
 </body>
 </html>

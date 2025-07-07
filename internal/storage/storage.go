@@ -41,7 +41,7 @@ func (s *Storage) SaveItems(items []model.Item, channelId int) error {
 
 func (s *Storage) FetchItemsByChannelId(channelId int) ([]model.Item, error) {
 	rows, err := s.pool.Query(context.Background(),
-		"SELECT title, description, pub_date FROM items WHERE channel_id = $1", channelId)
+		"SELECT id, title, description, pub_date FROM items WHERE channel_id = $1", channelId)
 	if err != nil {
 		return nil, err
 	}
@@ -52,15 +52,16 @@ func (s *Storage) FetchItemsByChannelId(channelId int) ([]model.Item, error) {
 
 	for rows.Next() {
 		var (
+			id                 int
 			title, description string
 			pubDate            time.Time
 		)
 
-		if err := rows.Scan(&title, &description, &pubDate); err != nil {
+		if err := rows.Scan(&id, &title, &description, &pubDate); err != nil {
 			return nil, err
 		}
 
-		items = append(items, model.Item{Title: title, Description: description, PubDate: model.DateTime(pubDate)})
+		items = append(items, model.Item{Id: id, Title: title, Description: description, PubDate: model.DateTime(pubDate)})
 	}
 
 	return items, nil
@@ -115,4 +116,21 @@ func (s *Storage) FetchChannels() ([]model.Channel, error) {
 	}
 
 	return channels, nil
+}
+
+func (s *Storage) FetchItemById(id int) (model.Item, error) {
+	var (
+		title, description string
+		pubDate            time.Time
+	)
+
+	err := s.pool.QueryRow(context.Background(),
+		"SELECT title, description, pub_date FROM items WHERE id = $1", id).
+		Scan(&title, &description, &pubDate)
+
+	if err != nil {
+		return model.Item{}, err
+	}
+
+	return model.Item{Id: id, Title: title, Description: description, PubDate: model.DateTime(pubDate)}, nil
 }

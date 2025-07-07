@@ -22,10 +22,20 @@
 
     <ul>
         <li>
-            <strong>Get Feed by ID:</strong>
+            <strong>Get Item by ID:</strong>
             <form id="feedForm" style="display:inline;">
                 <input type="number" id="feed-id" placeholder="e.g. 1" required />
                 <button type="submit">Go</button>
+            </form>
+        </li>
+    </ul>
+
+    <ul>
+        <li>
+            <strong>Remove Item by ID:</strong>
+            <form id="removeItemForm" style="display:inline;">
+                <input type="number" name="id" placeholder="e.g. 1" required />
+                <button type="submit">Remove</button>
             </form>
         </li>
     </ul>
@@ -45,6 +55,15 @@
             if (id) {
                 window.location.href = `/feeds/${id}`;
             }
+        });
+
+        document.getElementById('removeItemForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const id = this.elements.id.value.trim();
+            if (!id) return;
+            fetch('/feeds/' + id, { method: 'DELETE' })
+                .then(response => alert(response.ok ? 'Item deleted!' : 'Delete failed.'))
+                .catch(() => alert('Error deleting item.'));
         });
     </script>
 </body>

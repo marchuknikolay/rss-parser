@@ -32,5 +32,7 @@ func (h *Handler) InitRoutes() *echo.Echo {
 	router.GET("/channels/:id/", h.getFeeds)
 	router.GET("/feeds/:id/", h.getItem)
 
+	router.DELETE("/feeds/:id/", h.deleteItem)
+
 	return router
 }

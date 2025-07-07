@@ -9,7 +9,13 @@
     <a href="/channels/">Back to Channels</a>
 
     <h1>{{.Title}}</h1>
-    <h4>{{.PubDate}}</h4>
-    <p>{{.Description}}</p>
+
+    {{if .PubDate}}
+        <h4>{{.PubDate}}</h4>
+    {{end}}
+
+    {{if .Description}}
+        <p>{{.Description}}</p>
+    {{end}}
 </body>
 </html>

@@ -134,3 +134,13 @@ func (s *Storage) FetchItemById(id int) (model.Item, error) {
 
 	return model.Item{Id: id, Title: title, Description: description, PubDate: model.DateTime(pubDate)}, nil
 }
+
+func (s *Storage) DeleteItemById(id int) error {
+	_, err := s.pool.Exec(context.Background(), "DELETE FROM items WHERE id = $1", id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

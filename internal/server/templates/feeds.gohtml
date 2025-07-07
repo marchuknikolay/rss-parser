@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>RSS Feed</title>
+</head>
+<body>
+    <a href="/">Back to Home</a><br>
+    <a href="/channels/">Back to Channels</a>
+
+    <h1>Feeds</h1>
+    <ul>
+        {{range .}}
+            <li>
+                {{.Title}}
+            </li>
+        {{end}}
+    </ul>
+</body>
+</html>

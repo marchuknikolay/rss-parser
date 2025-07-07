@@ -10,6 +10,7 @@ type Rss struct {
 }
 
 type Channel struct {
+	Id          int
 	Title       string `xml:"title"`
 	Language    string `xml:"language"`
 	Description string `xml:"description"`

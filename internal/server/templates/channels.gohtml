@@ -10,13 +10,9 @@
     <h1>Channels</h1>
     <ul>
         {{range .}}
-            <li>{{.Title}}</li>
-            <h3>Items</h3>
-            <ul>
-                {{range .Items}}
-                    <li>{{.Title}}</li>
-                {{end}}
-            </ul>
+            <li>
+                <a href="/channels/{{.Id}}">{{.Title}}</a>
+            </li>
         {{end}}
     </ul>
 </body>

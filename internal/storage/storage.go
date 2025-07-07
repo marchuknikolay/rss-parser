@@ -111,7 +111,7 @@ func (s *Storage) FetchChannels() ([]model.Channel, error) {
 			return nil, err
 		}
 
-		channels = append(channels, model.Channel{Title: title, Language: language, Description: description, Items: items})
+		channels = append(channels, model.Channel{Id: id, Title: title, Language: language, Description: description, Items: items})
 	}
 
 	return channels, nil

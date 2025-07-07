@@ -28,7 +28,8 @@ func (h *Handler) InitRoutes() *echo.Echo {
 
 	router.Static("/", "public/static")
 
-	router.GET("/feed/", h.getFeed)
+	router.GET("/channels/", h.getChannels)
+	router.GET("/channels/:id", h.getFeeds)
 
 	return router
 }

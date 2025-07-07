@@ -1,16 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>RSS Parser</title>
 </head>
 
 <body>
-    <h1>Rest API</h1>
+    <h1>REST API</h1>
+
     <ul>
-        <li><a href="/channels/">Get Channels</a></li>
+        <li><strong>Get Channels:</strong> <a href="/channels/">GET /channels/</a></li>
+        <li>
+            <strong>Get Channel by ID:</strong>
+            <form id="channelForm" style="display:inline;">
+                <input type="number" id="channel-id" placeholder="e.g. 1" required />
+                <button type="submit">Go</button>
+            </form>
+        </li>
     </ul>
+
+    <ul>
+        <li>
+            <strong>Get Feed by ID:</strong>
+            <form id="feedForm" style="display:inline;">
+                <input type="number" id="feed-id" placeholder="e.g. 1" required />
+                <button type="submit">Go</button>
+            </form>
+        </li>
+    </ul>
+
+    <script>
+        document.getElementById('channelForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const id = document.getElementById('channel-id').value.trim();
+            if (id) {
+                window.location.href = `/channels/${id}`;
+            }
+        });
+
+        document.getElementById('feedForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const id = document.getElementById('feed-id').value.trim();
+            if (id) {
+                window.location.href = `/feeds/${id}`;
+            }
+        });
+    </script>
 </body>
 
 </html>

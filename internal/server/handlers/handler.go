@@ -29,8 +29,8 @@ func (h *Handler) InitRoutes() *echo.Echo {
 	router.Static("/", "public/static")
 
 	router.GET("/channels/", h.getChannels)
-	router.GET("/channels/:id", h.getFeeds)
-	router.GET("/feeds/:id", h.getItem)
+	router.GET("/channels/:id/", h.getFeeds)
+	router.GET("/feeds/:id/", h.getItem)
 
 	return router
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/marchuknikolay/rss-parser/internal/config"
 	"github.com/marchuknikolay/rss-parser/internal/server"
 	"github.com/marchuknikolay/rss-parser/internal/server/handlers"

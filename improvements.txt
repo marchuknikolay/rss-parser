@@ -1,5 +1,8 @@
 Improvements:
 - Auto code formatting
 - Update README
+- Refactor errors
+- Improve index.html
+- Divide Storage into two repositories
 - Add database transactions
 - Add tests

@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/marchuknikolay/rss-parser/internal/config"
 	"github.com/marchuknikolay/rss-parser/internal/server"
@@ -17,13 +16,13 @@ import (
 )
 
 func main() {
-	dbConfig, err := config.NewDBConfig()
+	config, err := config.New()
 	if err != nil {
 		log.Fatalf("failed loading config: %v", err)
 	}
 
 	connString := fmt.Sprintf("postgres://%v:%v@%v:%v/%v",
-		dbConfig.User, dbConfig.Password, dbConfig.Host, dbConfig.ContainerPort, dbConfig.Name)
+		config.DB.User, config.DB.Password, config.DB.Host, config.DB.ContainerPort, config.DB.Name)
 
 	storage, err := storage.New(connString)
 	if err != nil {
@@ -34,30 +33,30 @@ func main() {
 
 	handler := handlers.New(service)
 
-	server := server.New("8080", handler.InitRoutes())
+	server := server.New(config.Server.Port, handler.InitRoutes())
 
 	go func() {
 		if err = server.Start(); err != nil {
-			log.Fatalf("failed starting server: %v", err)
+			log.Fatalf("failed starting the server: %v", err)
 		}
 	}()
 
-	log.Println("Server is running on port 8080")
+	log.Printf("The server is running on port %v", config.Server.Port)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
-	log.Println("Shutting down server")
+	log.Println("Shutting down the server")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Server.ShutdownTimeout)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("failed shutting down server: %v", err)
+		log.Fatalf("failed shutting down the server: %v", err)
 	}
 
 	storage.Close()
 
-	log.Println("Server stopped gracefully")
+	log.Println("The server stopped gracefully")
 }

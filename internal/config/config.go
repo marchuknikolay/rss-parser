@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/joeshaw/envdecode"
 )
@@ -15,8 +16,18 @@ type DBConfig struct {
 	ContainerPort int    `env:"DB_CONTAINER_PORT, required"`
 }
 
-func NewDBConfig() (*DBConfig, error) {
-	var config DBConfig
+type ServerConfig struct {
+	Port            string        `env:"SERVER_PORT, required"`
+	ShutdownTimeout time.Duration `env:"SERVER_SHUTDOWN_TIMEOUT, required"`
+}
+
+type Config struct {
+	DB     DBConfig
+	Server ServerConfig
+}
+
+func New() (*Config, error) {
+	var config Config
 
 	if err := envdecode.StrictDecode(&config); err != nil {
 		return nil, fmt.Errorf("failed decoding .env file: %w", err)

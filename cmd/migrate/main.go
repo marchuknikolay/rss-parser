@@ -21,13 +21,13 @@ func main() {
 		log.Fatalf("Minimum args count is %v, but actual is %v\n", minArgsCount, actualArgsCount)
 	}
 
-	dbConfig, err := config.NewDBConfig()
+	config, err := config.New()
 	if err != nil {
 		log.Fatalf("failed loading config: %v", err)
 	}
 
 	dbString := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable",
-		dbConfig.Host, dbConfig.User, dbConfig.Password, dbConfig.Name, dbConfig.ContainerPort)
+		config.DB.Host, config.DB.User, config.DB.Password, config.DB.Name, config.DB.ContainerPort)
 
 	db, err := goose.OpenDBWithDriver(dbDriver, dbString)
 	if err != nil {

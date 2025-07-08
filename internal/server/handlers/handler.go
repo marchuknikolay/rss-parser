@@ -28,13 +28,17 @@ func (h *Handler) InitRoutes() *echo.Echo {
 
 	router.Static("/", "public/static")
 
+	router.POST("/channels/", h.importFeed)
 	router.GET("/channels/", h.getChannels)
-	router.GET("/channels/:id/", h.getFeeds)
-	router.GET("/feeds/:id/", h.getItem)
+	router.GET("/channels/:id/", h.getChannelById)
+	router.DELETE("/channels/:id/", h.deleteChannel)
+	router.PUT("/channels/:id/", h.updateChannel)
 
-	router.POST("/channels/", h.postChannels)
-
-	router.DELETE("/feeds/:id/", h.deleteItem)
+	router.GET("/items/", h.getItems)
+	router.GET("/channels/items/:id/", h.getItemsByChannelId)
+	router.GET("/items/:id/", h.getItemById)
+	router.DELETE("/items/:id/", h.deleteItem)
+	router.PUT("/items/:id/", h.updateItem)
 
 	return router
 }

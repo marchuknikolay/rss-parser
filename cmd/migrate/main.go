@@ -23,7 +23,7 @@ func main() {
 
 	config, err := config.New()
 	if err != nil {
-		log.Fatalf("failed loading config: %v", err)
+		log.Fatalf("Failed loading config: %v", err)
 	}
 
 	dbString := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable",

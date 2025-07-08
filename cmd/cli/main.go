@@ -18,7 +18,7 @@ import (
 func main() {
 	config, err := config.New()
 	if err != nil {
-		log.Fatalf("failed loading config: %v", err)
+		log.Fatalf("Failed loading config: %v", err)
 	}
 
 	connString := fmt.Sprintf("postgres://%v:%v@%v:%v/%v",
@@ -26,7 +26,7 @@ func main() {
 
 	storage, err := storage.New(connString)
 	if err != nil {
-		log.Fatalf("failed creating a new database connection: %v", err)
+		log.Fatalf("Failed creating a new database connection: %v", err)
 	}
 
 	service := service.New(storage)
@@ -53,7 +53,7 @@ func main() {
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("failed shutting down the server: %v", err)
+		log.Fatalf("Failed shutting down the server: %v", err)
 	}
 
 	storage.Close()

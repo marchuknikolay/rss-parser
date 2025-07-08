@@ -1,8 +1,6 @@
 package service
 
 import (
-	"log"
-
 	"github.com/marchuknikolay/rss-parser/internal/fetcher"
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/parser"
@@ -22,17 +20,18 @@ func New(storage *storage.Storage) *Service {
 func (s *Service) ImportFeed(url string) error {
 	bs, err := fetcher.Fetch(url)
 	if err != nil {
-		log.Fatalf("Error fetching data: %v\n", err)
+		return err
 	}
 
 	rss, err := parser.Parse(bs)
 	if err != nil {
-		log.Fatalf("Error parsing data: %v\n", err)
+		return err
 	}
 
-	if err := s.storage.SaveChannels(rss.Channels); err != nil {
-		log.Fatalf("Failed saving channels: %v", err)
+	if err = s.storage.SaveChannels(rss.Channels); err != nil {
+		return err
 	}
+
 	return nil
 }
 

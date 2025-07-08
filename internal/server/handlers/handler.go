@@ -4,16 +4,16 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/marchuknikolay/rss-parser/internal/server/renderer"
-	"github.com/marchuknikolay/rss-parser/internal/storage"
+	"github.com/marchuknikolay/rss-parser/internal/service"
 )
 
 type Handler struct {
-	storage *storage.Storage
+	service *service.Service
 }
 
-func New(storage *storage.Storage) *Handler {
+func New(service *service.Service) *Handler {
 	return &Handler{
-		storage: storage,
+		service: service,
 	}
 }
 
@@ -31,6 +31,8 @@ func (h *Handler) InitRoutes() *echo.Echo {
 	router.GET("/channels/", h.getChannels)
 	router.GET("/channels/:id/", h.getFeeds)
 	router.GET("/feeds/:id/", h.getItem)
+
+	router.POST("/channels/", h.postChannels)
 
 	router.DELETE("/feeds/:id/", h.deleteItem)
 

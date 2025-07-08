@@ -24,7 +24,7 @@ func (h *Handler) getItem(c echo.Context) error {
 		return err
 	}
 
-	item, err := h.storage.FetchItemById(itemId)
+	item, err := h.service.FetchItemById(itemId)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (h *Handler) deleteItem(c echo.Context) error {
 		return err
 	}
 
-	err = h.storage.DeleteItemById(itemId)
+	err = h.service.DeleteItemById(itemId)
 	if err != nil {
 		return err
 	}

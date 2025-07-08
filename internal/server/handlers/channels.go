@@ -2,13 +2,12 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
 
 func (h *Handler) getChannels(c echo.Context) error {
-	channels, err := h.storage.FetchChannels()
+	channels, err := h.service.FetchChannels()
 	if err != nil {
 		return err
 	}
@@ -16,18 +15,13 @@ func (h *Handler) getChannels(c echo.Context) error {
 	return c.Render(http.StatusOK, "channels.gohtml", channels)
 }
 
-func (h *Handler) getChannel(c echo.Context) error {
-	id := c.Param("id")
+func (h *Handler) postChannels(c echo.Context) error {
+	url := c.FormValue("url")
 
-	channelId, err := strconv.Atoi(id)
+	err := h.service.ImportFeed(url)
 	if err != nil {
 		return err
 	}
 
-	items, err := h.storage.FetchItemsByChannelId(channelId)
-	if err != nil {
-		return err
-	}
-
-	return c.Render(http.StatusOK, "feeds.gohtml", items)
+	return c.HTML(http.StatusOK, "<a href=\"/\">Back to Home</a><br>Import successful!")
 }

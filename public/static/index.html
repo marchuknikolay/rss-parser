@@ -22,6 +22,16 @@
 
     <ul>
         <li>
+            <strong>Post Channels:</strong>
+            <form action="/channels/" method="POST" style="display:inline;">
+                <input type="url" name="url" placeholder="https://example.com/rss" required />
+                <button type="submit">Post</button>
+            </form>
+        </li>
+    </ul>
+
+    <ul>
+        <li>
             <strong>Get Item by ID:</strong>
             <form id="feedForm" style="display:inline;">
                 <input type="number" id="feed-id" placeholder="e.g. 1" required />

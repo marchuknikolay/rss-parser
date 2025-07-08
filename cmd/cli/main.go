@@ -8,6 +8,7 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/config"
 	"github.com/marchuknikolay/rss-parser/internal/server"
 	"github.com/marchuknikolay/rss-parser/internal/server/handlers"
+	"github.com/marchuknikolay/rss-parser/internal/service"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
@@ -27,7 +28,9 @@ func main() {
 
 	defer storage.Close()
 
-	handler := handlers.New(storage)
+	service := service.New(storage)
+
+	handler := handlers.New(service)
 
 	server := server.New("8080", handler.InitRoutes())
 

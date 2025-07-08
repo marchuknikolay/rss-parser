@@ -16,7 +16,7 @@ func (h *Handler) getFeeds(c echo.Context) error {
 		return err
 	}
 
-	items, err := h.storage.FetchItemsByChannelId(channelId)
+	items, err := h.service.FetchItemsByChannelId(channelId)
 	if err != nil {
 		return err
 	}

@@ -27,7 +27,7 @@ func (h *Handler) getItems(c echo.Context) error {
 }
 
 func (h *Handler) getItemsByChannelId(c echo.Context) error {
-	id := c.FormValue("id")
+	id := strings.TrimSuffix(c.Param("id"), "/")
 
 	channelId, err := strconv.Atoi(id)
 	if err != nil {

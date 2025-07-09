@@ -7,6 +7,10 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/service"
 )
 
+type Response struct {
+	Message string
+}
+
 type Handler struct {
 	service *service.Service
 }
@@ -30,7 +34,7 @@ func (h *Handler) InitRoutes() *echo.Echo {
 
 	router.POST("/channels/", h.importFeed)
 	router.GET("/channels/", h.getChannels)
-	router.GET("/channels/:id/", h.getChannelById)
+	router.GET("/channels/:id/", h.getItemsByChannelId)
 	router.DELETE("/channels/:id/", h.deleteChannel)
 	router.PUT("/channels/:id/", h.updateChannel)
 

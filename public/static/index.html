@@ -2,79 +2,76 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>RSS Parser</title>
+    <meta charset="UTF-8">
+    <title>Simple REST API Tester</title>
 </head>
 
 <body>
-    <h1>REST API</h1>
+    <h1>Channel API Tester</h1>
 
-    <ul>
-        <li><strong>Get Channels:</strong> <a href="/channels/">GET /channels/</a></li>
-        <li>
-            <strong>Get Channel by ID:</strong>
-            <form id="channelForm" style="display:inline;">
-                <input type="number" id="channel-id" placeholder="e.g. 1" required />
-                <button type="submit">Go</button>
-            </form>
-        </li>
-    </ul>
+    <h2>GET /channels/</h2>
+    <form method="get" action="/channels/">
+        <button type="submit">Fetch All Channels</button>
+    </form>
 
-    <ul>
-        <li>
-            <strong>Post Channels:</strong>
-            <form action="/channels/" method="POST" style="display:inline;">
-                <input type="url" name="url" placeholder="https://example.com/rss" required />
-                <button type="submit">Post</button>
-            </form>
-        </li>
-    </ul>
+    <h2>POST /channels</h2>
+    <form method="post" action="/channels">
+        <input name="url" placeholder="URL" required />
+        <button type="submit">Import Feed</button>
+    </form>
 
-    <ul>
-        <li>
-            <strong>Get Item by ID:</strong>
-            <form id="feedForm" style="display:inline;">
-                <input type="number" id="feed-id" placeholder="e.g. 1" required />
-                <button type="submit">Go</button>
-            </form>
-        </li>
-    </ul>
+    <h2>GET /channels/:id/</h2>
+    <form method="get" onsubmit="handleGetById(event)">
+        <input id="getId" placeholder="Channel ID" required />
+        <button type="submit">Fetch Channel by ID</button>
+    </form>
 
-    <ul>
-        <li>
-            <strong>Remove Item by ID:</strong>
-            <form id="removeItemForm" style="display:inline;">
-                <input type="number" name="id" placeholder="e.g. 1" required />
-                <button type="submit">Remove</button>
-            </form>
-        </li>
-    </ul>
+    <h2>DELETE /channels/:id/</h2>
+    <form method="post" onsubmit="handleDelete(event)">
+        <input id="deleteId" placeholder="Channel ID" required />
+        <button type="submit">Delete Channel</button>
+    </form>
+
+    <h2>PUT /channels</h2>
+    <form method="post" onsubmit="handlePut(event)">
+        <input id="putId" placeholder="ID" required /><br />
+        <input id="putTitle" placeholder="Title" /><br />
+        <input id="putLang" placeholder="Language" /><br />
+        <textarea id="putDesc" placeholder="Description"></textarea><br />
+        <button type="submit">Update Channel</button>
+    </form>
 
     <script>
-        document.getElementById('channelForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const id = document.getElementById('channel-id').value.trim();
-            if (id) {
-                window.location.href = `/channels/${id}`;
-            }
-        });
+        function handleGetById(event) {
+            event.preventDefault();
+            const id = document.getElementById('getId').value;
+            window.location.href = `/channels/${id}/`;
+        }
 
-        document.getElementById('feedForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const id = document.getElementById('feed-id').value.trim();
-            if (id) {
-                window.location.href = `/feeds/${id}`;
-            }
-        });
+        function handleDelete(event) {
+            event.preventDefault();
+            const id = document.getElementById('deleteId').value;
+            fetch(`/channels/${id}/`, {
+                method: 'DELETE'
+            }).then(() => window.location.reload());
+        }
 
-        document.getElementById('removeItemForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const id = this.elements.id.value.trim();
-            if (!id) return;
-            fetch('/feeds/' + id, { method: 'DELETE' })
-                .then(response => alert(response.ok ? 'Item deleted!' : 'Delete failed.'))
-                .catch(() => alert('Error deleting item.'));
-        });
+        function handlePut(event) {
+            event.preventDefault();
+            const id = document.getElementById('putId').value;
+            const data = {
+                title: document.getElementById('putTitle').value,
+                language: document.getElementById('putLang').value,
+                description: document.getElementById('putDesc').value,
+            };
+
+            fetch(`/channels/${id}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            }).then(() => window.location.reload());
+        }
+
     </script>
 </body>
 

@@ -77,29 +77,36 @@ func (h *Handler) deleteItem(c echo.Context) error {
 		return err
 	}
 
-	return c.Render(http.StatusOK, "item.gohtml", ItemView{Title: "Item successfully deleted"})
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *Handler) updateItem(c echo.Context) error {
-	idStr := c.FormValue("id")
-	title := c.FormValue("title")
-	description := c.FormValue("description")
-	pubDateStr := c.FormValue("pub_date")
+	idStr := strings.TrimSuffix(c.Param("id"), "/")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return err
 	}
 
-	pubDate, err := time.Parse(time.RFC3339, pubDateStr)
+	var input struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		PubDate     string `json:"pub_date"`
+	}
+
+	if err := c.Bind(&input); err != nil {
+		return err
+	}
+
+	pubDate, err := time.Parse("2006-01-02T15:04", input.PubDate)
 	if err != nil {
 		return err
 	}
 
-	err = h.service.UpdateItem(c.Request().Context(), id, title, description, pubDate)
+	err = h.service.UpdateItem(c.Request().Context(), id, input.Title, input.Description, pubDate)
 	if err != nil {
 		return err
 	}
 
-	return c.HTML(http.StatusOK, "<a href=\"/\">Back to Home</a><br>Item updated successfully!")
+	return c.NoContent(http.StatusNoContent)
 }

@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    <h1>Channel API Tester</h1>
+    <h1>RSS Feed API Tester</h1>
 
     <h2>GET /channels/</h2>
     <form method="get" action="/channels/">
@@ -21,34 +21,69 @@
     </form>
 
     <h2>GET /channels/:id/</h2>
-    <form method="get" onsubmit="handleGetById(event)">
+    <form method="get" onsubmit="handleGetChannelById(event)">
         <input id="getId" placeholder="Channel ID" required />
         <button type="submit">Fetch Channel by ID</button>
     </form>
 
     <h2>DELETE /channels/:id/</h2>
-    <form method="post" onsubmit="handleDelete(event)">
+    <form method="post" onsubmit="handleDeleteChannel(event)">
         <input id="deleteId" placeholder="Channel ID" required />
         <button type="submit">Delete Channel</button>
     </form>
 
-    <h2>PUT /channels</h2>
-    <form method="post" onsubmit="handlePut(event)">
-        <input id="putId" placeholder="ID" required /><br />
-        <input id="putTitle" placeholder="Title" /><br />
-        <input id="putLang" placeholder="Language" /><br />
-        <textarea id="putDesc" placeholder="Description"></textarea><br />
+    <h2>PUT /channels/:id/</h2>
+    <form method="post" onsubmit="handlePutChannel(event)">
+        <input id="putChannelId" placeholder="ID" required /><br />
+        <input id="putChannelTitle" placeholder="Title" /><br />
+        <input id="putChannelLang" placeholder="Language" /><br />
+        <textarea id="putChannelDesc" placeholder="Description"></textarea><br />
         <button type="submit">Update Channel</button>
     </form>
 
+    <hr>
+
+    <h2>GET /items/</h2>
+    <form method="get" action="/items/">
+        <button type="submit">Fetch All Items</button>
+    </form>
+
+    <h2>GET /channels/:id/items/</h2>
+    <form method="get" onsubmit="handleGetItemsByChannelId(event)">
+        <input id="getItemsChannelId" placeholder="Channel ID" required />
+        <button type="submit">Fetch Items by Channel ID</button>
+    </form>
+
+    <h2>GET /items/:id/</h2>
+    <form method="get" onsubmit="handleGetItemById(event)">
+        <input id="getItemId" placeholder="Item ID" required />
+        <button type="submit">Fetch Item by ID</button>
+    </form>
+
+
+    <h2>DELETE /items/:id/</h2>
+    <form method="post" onsubmit="handleDeleteItem(event)">
+        <input id="deleteItemId" placeholder="Item ID" required />
+        <button type="submit">Delete Item</button>
+    </form>
+
+    <h2>PUT /items/:id/</h2>
+    <form method="post" onsubmit="handlePutItem(event)">
+        <input id="putItemId" placeholder="ID" required /><br />
+        <input id="putItemTitle" placeholder="Title" /><br />
+        <textarea id="putItemDesc" placeholder="Description"></textarea><br />
+        <input type="datetime-local" id="putItemDateTime" /><br />
+        <button type="submit">Update Item</button>
+    </form>
+
     <script>
-        function handleGetById(event) {
+        function handleGetChannelById(event) {
             event.preventDefault();
             const id = document.getElementById('getId').value;
             window.location.href = `/channels/${id}/`;
         }
 
-        function handleDelete(event) {
+        function handleDeleteChannel(event) {
             event.preventDefault();
             const id = document.getElementById('deleteId').value;
             fetch(`/channels/${id}/`, {
@@ -56,16 +91,53 @@
             }).then(() => window.location.reload());
         }
 
-        function handlePut(event) {
+        function handlePutChannel(event) {
             event.preventDefault();
-            const id = document.getElementById('putId').value;
             const data = {
-                title: document.getElementById('putTitle').value,
-                language: document.getElementById('putLang').value,
-                description: document.getElementById('putDesc').value,
+                id: document.getElementById('putChannelId').value.trim(),
+                title: document.getElementById('putChannelTitle').value,
+                language: document.getElementById('putChannelLang').value,
+                description: document.getElementById('putChannelDesc').value,
             };
 
-            fetch(`/channels/${id}/`, {
+            fetch(`/channels/${data.id}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            }).then(() => window.location.reload());
+        }
+
+        function handleGetItemsByChannelId(event) {
+            event.preventDefault();
+            const id = document.getElementById('getItemsChannelId').value;
+            window.location.href = `/channels/${id}/items/`;
+        }
+
+        function handleGetItemById(event) {
+            event.preventDefault();
+            const id = document.getElementById('getItemId').value;
+            window.location.href = `/items/${id}/`;
+        }
+
+
+        function handleDeleteItem(event) {
+            event.preventDefault();
+            const id = document.getElementById('deleteItemId').value;
+            fetch(`/items/${id}/`, {
+                method: 'DELETE'
+            }).then(() => window.location.reload());
+        }
+
+        function handlePutItem(event) {
+            event.preventDefault();
+            const id = document.getElementById('putItemId').value.trim();
+            const data = {
+                title: document.getElementById('putItemTitle').value,
+                description: document.getElementById('putItemDesc').value,
+                pub_date: document.getElementById('putItemDateTime').value,
+            };
+
+            fetch(`/items/${id}/`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),

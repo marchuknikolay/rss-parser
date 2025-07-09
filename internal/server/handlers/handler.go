@@ -39,7 +39,7 @@ func (h *Handler) InitRoutes() *echo.Echo {
 	router.PUT("/channels/:id/", h.updateChannel)
 
 	router.GET("/items/", h.getItems)
-	router.GET("/channels/items/:id/", h.getItemsByChannelId)
+	router.GET("/channels/:id/items/", h.getItemsByChannelId)
 	router.GET("/items/:id/", h.getItemById)
 	router.DELETE("/items/:id/", h.deleteItem)
 	router.PUT("/items/:id/", h.updateItem)

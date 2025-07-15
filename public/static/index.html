@@ -48,12 +48,6 @@
         <button type="submit">Fetch All Items</button>
     </form>
 
-    <h2>GET /channels/:id/items/</h2>
-    <form method="get" onsubmit="handleGetItemsByChannelId(event)">
-        <input id="getItemsChannelId" placeholder="Channel ID" required />
-        <button type="submit">Fetch Items by Channel ID</button>
-    </form>
-
     <h2>GET /items/:id/</h2>
     <form method="get" onsubmit="handleGetItemById(event)">
         <input id="getItemId" placeholder="Item ID" required />
@@ -107,18 +101,11 @@
             }).then(() => window.location.reload());
         }
 
-        function handleGetItemsByChannelId(event) {
-            event.preventDefault();
-            const id = document.getElementById('getItemsChannelId').value;
-            window.location.href = `/channels/${id}/items/`;
-        }
-
         function handleGetItemById(event) {
             event.preventDefault();
             const id = document.getElementById('getItemId').value;
             window.location.href = `/items/${id}/`;
         }
-
 
         function handleDeleteItem(event) {
             event.preventDefault();

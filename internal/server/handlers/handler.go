@@ -7,10 +7,6 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/service"
 )
 
-type Response struct {
-	Message string
-}
-
 type Handler struct {
 	service *service.Service
 }
@@ -32,17 +28,22 @@ func (h *Handler) InitRoutes() *echo.Echo {
 
 	router.Static("/", "public/static")
 
-	router.POST("/channels/", h.importFeed)
-	router.GET("/channels/", h.getChannels)
-	router.GET("/channels/:id/", h.getItemsByChannelId)
-	router.DELETE("/channels/:id/", h.deleteChannel)
-	router.PUT("/channels/:id/", h.updateChannel)
+	channels := router.Group("/channels")
+	{
+		channels.POST("/", h.importFeed)
+		channels.GET("/", h.getChannels)
+		channels.GET("/:id/", h.getItemsByChannelId)
+		channels.PUT("/:id/", h.updateChannel)
+		channels.DELETE("/:id/", h.deleteChannel)
+	}
 
-	router.GET("/items/", h.getItems)
-	router.GET("/channels/:id/items/", h.getItemsByChannelId)
-	router.GET("/items/:id/", h.getItemById)
-	router.DELETE("/items/:id/", h.deleteItem)
-	router.PUT("/items/:id/", h.updateItem)
+	items := router.Group("/items")
+	{
+		items.GET("/", h.getItems)
+		items.GET("/:id/", h.getItemById)
+		items.DELETE("/:id/", h.deleteItem)
+		items.PUT("/:id/", h.updateItem)
+	}
 
 	return router
 }

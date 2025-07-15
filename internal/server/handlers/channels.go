@@ -16,7 +16,7 @@ func (h *Handler) importFeed(c echo.Context) error {
 		return err
 	}
 
-	return c.Render(http.StatusOK, "base.gohtml", Response{Message: "Import successful!"})
+	return c.Render(http.StatusOK, "base.gohtml", struct{ Message string }{Message: "Import successful!"})
 }
 
 func (h *Handler) getChannels(c echo.Context) error {

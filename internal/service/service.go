@@ -51,7 +51,7 @@ func (s *Service) DeleteChannel(ctx context.Context, id int) error {
 	return s.channelRepository.Delete(ctx, id)
 }
 
-func (s *Service) UpdateChannel(ctx context.Context, id int, title, language, description string) error {
+func (s *Service) UpdateChannel(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
 	return s.channelRepository.Update(ctx, id, title, language, description)
 }
 

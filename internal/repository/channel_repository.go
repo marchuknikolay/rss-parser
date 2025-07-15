@@ -91,18 +91,25 @@ func (r *ChannelRepository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *ChannelRepository) Update(ctx context.Context, id int, title, language, description string) error {
-	query := `UPDATE channels SET title = $1, language = $2, description = $3 WHERE id = $4`
+func (r *ChannelRepository) Update(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
+	query := `
+		UPDATE channels
+		SET title = $1, language = $2, description = $3
+		WHERE id = $4
+		RETURNING id, title, language, description
+	`
 
-	executor := r.Storage.ExecExecutor()
-	tag, err := executor.Exec(ctx, query, title, language, description, id)
-	if err != nil {
-		return fmt.Errorf("failed to update channel with id=%d: %w", id, err)
+	executor := r.Storage.QueryExecutor()
+	row := executor.QueryRow(ctx, query, title, language, description, id)
+
+	var channel model.Channel
+	if err := row.Scan(&channel.Id, &channel.Title, &channel.Language, &channel.Description); err != nil {
+		if err == pgx.ErrNoRows {
+			return model.Channel{}, fmt.Errorf("no channel found with id=%d", id)
+		}
+
+		return model.Channel{}, fmt.Errorf("failed to update channel with id=%d: %w", id, err)
 	}
 
-	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("no channel found with id=%d", id)
-	}
-
-	return nil
+	return channel, nil
 }

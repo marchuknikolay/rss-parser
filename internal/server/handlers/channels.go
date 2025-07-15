@@ -3,17 +3,18 @@ package handlers
 import (
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 )
 
 func (h *Handler) importFeed(c echo.Context) error {
 	url := c.FormValue("url")
+	if url == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Missing 'url' parameter")
+	}
 
-	err := h.service.ImportFeed(c.Request().Context(), url)
-	if err != nil {
-		return err
+	if err := h.service.ImportFeed(c.Request().Context(), url); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to import feed: "+err.Error())
 	}
 
 	return c.Render(http.StatusOK, "base.gohtml", struct{ Message string }{Message: "Import successful!"})
@@ -22,34 +23,31 @@ func (h *Handler) importFeed(c echo.Context) error {
 func (h *Handler) getChannels(c echo.Context) error {
 	channels, err := h.service.GetChannels(c.Request().Context())
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get channels: "+err.Error())
 	}
 
 	return c.Render(http.StatusOK, "channels.gohtml", channels)
 }
 
 func (h *Handler) deleteChannel(c echo.Context) error {
-	idStr := strings.TrimSuffix(c.Param("id"), "/")
-
+	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid channel ID: "+idStr)
 	}
 
-	err = h.service.DeleteChannel(c.Request().Context(), id)
-	if err != nil {
-		return err
+	if err = h.service.DeleteChannel(c.Request().Context(), id); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete channel: "+err.Error())
 	}
 
 	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *Handler) updateChannel(c echo.Context) error {
-	idStr := strings.TrimSuffix(c.Param("id"), "/")
-
+	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid channel ID: "+idStr)
 	}
 
 	var input struct {
@@ -59,13 +57,13 @@ func (h *Handler) updateChannel(c echo.Context) error {
 	}
 
 	if err := c.Bind(&input); err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body: "+err.Error())
 	}
 
-	err = h.service.UpdateChannel(c.Request().Context(), id, input.Title, input.Language, input.Description)
+	updatedChannel, err := h.service.UpdateChannel(c.Request().Context(), id, input.Title, input.Language, input.Description)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update channel: "+err.Error())
 	}
 
-	return c.NoContent(http.StatusNoContent)
+	return c.JSON(http.StatusOK, updatedChannel)
 }

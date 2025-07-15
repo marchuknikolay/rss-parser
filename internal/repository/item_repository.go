@@ -23,7 +23,7 @@ func (r *ItemRepository) Save(ctx context.Context, item model.Item, channelId in
 	query := "INSERT INTO items (title, description, pub_date, channel_id) VALUES ($1, $2, $3, $4)"
 
 	executor := r.Storage.ExecExecutor()
-	_, err := executor.Exec(ctx, query, item.Title, item.Description, item.PubDate, channelId)
+	_, err := executor.Exec(ctx, query, item.Title, item.Description, time.Time(item.PubDate), channelId)
 
 	return err
 }

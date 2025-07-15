@@ -11,9 +11,9 @@ type Renderer struct {
 	template *template.Template
 }
 
-func New(pattern string) *Renderer {
+func New(pattern string, funcMap *template.FuncMap) *Renderer {
 	return &Renderer{
-		template: template.Must(template.ParseGlob(pattern)),
+		template: template.Must(template.New("").Funcs(*funcMap).ParseGlob(pattern)),
 	}
 }
 

@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"html/template"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/marchuknikolay/rss-parser/internal/server/renderer"
+	"github.com/marchuknikolay/rss-parser/internal/server/templates/funcs"
 	"github.com/marchuknikolay/rss-parser/internal/service"
 )
 
@@ -20,7 +23,11 @@ func New(service *service.Service) *Handler {
 func (h *Handler) InitRoutes() *echo.Echo {
 	router := echo.New()
 
-	router.Renderer = renderer.New("internal/server/templates/*.gohtml")
+	funcs := template.FuncMap{
+		"formatDate": funcs.FormatDate,
+	}
+
+	router.Renderer = renderer.New("internal/server/templates/*.gohtml", &funcs)
 
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())

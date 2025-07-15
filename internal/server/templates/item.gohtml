@@ -11,7 +11,7 @@
     <h1>{{.Title}}</h1>
 
     {{if .PubDate}}
-        <h4>{{.PubDate}}</h4>
+        <h4>{{formatDate .PubDate}}</h4>
     {{end}}
 
     {{if .Description}}

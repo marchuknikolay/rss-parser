@@ -71,7 +71,7 @@ func (s *Service) DeleteItem(ctx context.Context, itemId int) error {
 	return s.itemRepository.Delete(ctx, itemId)
 }
 
-func (s *Service) UpdateItem(ctx context.Context, itemId int, title, description string, pubDate time.Time) error {
+func (s *Service) UpdateItem(ctx context.Context, itemId int, title, description string, pubDate time.Time) (model.Item, error) {
 	return s.itemRepository.Update(ctx, itemId, title, description, pubDate)
 }
 

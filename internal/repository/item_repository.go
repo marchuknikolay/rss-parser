@@ -81,20 +81,27 @@ func (r *ItemRepository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *ItemRepository) Update(ctx context.Context, id int, title, description string, pubTime time.Time) error {
-	query := `UPDATE items SET title = $1, description = $2, pub_date = $3 WHERE id = $4`
+func (r *ItemRepository) Update(ctx context.Context, id int, title, description string, pubTime time.Time) (model.Item, error) {
+	query := `
+		UPDATE items
+		SET title = $1, description = $2, pub_date = $3
+		WHERE id = $4
+		RETURNING id, title, description, pub_date
+	`
 
-	executor := r.Storage.ExecExecutor()
-	tag, err := executor.Exec(ctx, query, title, description, pubTime, id)
-	if err != nil {
-		return fmt.Errorf("failed to update item with id=%d: %w", id, err)
+	executor := r.Storage.QueryExecutor()
+	row := executor.QueryRow(ctx, query, title, description, pubTime, id)
+
+	var item model.Item
+	if err := row.Scan(&item.Id, &item.Title, &item.Description, &item.PubDate); err != nil {
+		if err == pgx.ErrNoRows {
+			return model.Item{}, fmt.Errorf("no item found with id=%d", id)
+		}
+
+		return model.Item{}, fmt.Errorf("failed to update item with id=%d: %w", id, err)
 	}
 
-	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("no item found with id=%d", id)
-	}
-
-	return nil
+	return item, nil
 }
 
 func (r *ItemRepository) getItems(ctx context.Context, query string, args ...any) ([]model.Item, error) {

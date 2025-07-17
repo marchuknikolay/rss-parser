@@ -16,19 +16,19 @@
 
     <h2>POST /channels/</h2>
     <form method="post" action="/channels/">
-        <input id="postChannelUrl" name="url" placeholder="Feed URL" required />
+        <input id="postChannelUrl" name="url" placeholder="Feed URL" required /><br />
         <button type="submit">Import Feed</button>
     </form>
 
     <h2>GET /channels/:id/</h2>
     <form method="get" onsubmit="handleGetItemsByChannelId(event)">
-        <input id="getChannelId" placeholder="Channel ID" required />
+        <input id="getChannelId" placeholder="Channel ID" required /><br />
         <button type="submit">Fetch Items by Channel ID</button>
     </form>
 
     <h2>DELETE /channels/:id/</h2>
     <form method="post" onsubmit="handleDeleteChannel(event)">
-        <input id="deleteChannelId" placeholder="Channel ID" required />
+        <input id="deleteChannelId" placeholder="Channel ID" required /><br />
         <button type="submit">Delete Channel</button>
     </form>
 
@@ -41,7 +41,7 @@
         <button type="submit">Update Channel</button>
     </form>
 
-    <hr>
+    <div class="divider"></div>
 
     <h2>GET /items/</h2>
     <form method="get" action="/items/">
@@ -50,13 +50,13 @@
 
     <h2>GET /items/:id/</h2>
     <form method="get" onsubmit="handleGetItemById(event)">
-        <input id="getItemId" placeholder="Item ID" required />
+        <input id="getItemId" placeholder="Item ID" required /><br />
         <button type="submit">Fetch Item by ID</button>
     </form>
 
     <h2>DELETE /items/:id/</h2>
     <form method="post" onsubmit="handleDeleteItem(event)">
-        <input id="deleteItemId" placeholder="Item ID" required />
+        <input id="deleteItemId" placeholder="Item ID" required /><br />
         <button type="submit">Delete Item</button>
     </form>
 

@@ -1,4 +1,5 @@
 Improvements:
+- Remove channel items while removing channel
 - Add concurrency
 - Update README
 - Refactor errors

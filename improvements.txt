@@ -1,5 +1,4 @@
 Improvements:
-- Remove channel items while removing channel
 - Add interfaces into router related to db
 - Add concurrency
 - Update README

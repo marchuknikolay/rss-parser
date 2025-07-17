@@ -48,7 +48,35 @@ func (s *Service) GetChannelById(ctx context.Context, id int) (model.Channel, er
 }
 
 func (s *Service) DeleteChannel(ctx context.Context, id int) error {
-	return s.channelRepository.Delete(ctx, id)
+	return s.storage.WithTransaction(ctx, func(txStorage *storage.Storage) error {
+		originalChannelStorage := s.channelRepository.Storage
+		originalItemStorage := s.itemRepository.Storage
+
+		defer func() {
+			s.channelRepository.Storage = originalChannelStorage
+			s.itemRepository.Storage = originalItemStorage
+		}()
+
+		s.channelRepository.Storage = txStorage
+		s.itemRepository.Storage = txStorage
+
+		items, err := s.itemRepository.GetByChannelId(ctx, id)
+		if err != nil {
+			return err
+		}
+
+		for _, item := range items {
+			if err := s.itemRepository.Delete(ctx, item.Id); err != nil {
+				return err
+			}
+		}
+
+		if err = s.channelRepository.Delete(ctx, id); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (s *Service) UpdateChannel(ctx context.Context, id int, title, language, description string) (model.Channel, error) {

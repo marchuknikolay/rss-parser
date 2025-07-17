@@ -1,20 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>RSS Feed</title>
-</head>
-<body>
-    <a href="/">Back to Home</a><br>
-    <a href="/channels/">Back to Channels</a>
+{{ define "header" }}
+    Items
+{{ end }}
 
-    <h1>Feeds</h1>
+{{ define "content" }}
+    {{ template "backToChannels" . }}
+    
     <ul>
-        {{range .}}
-            <li>
-                <a href="/items/{{.Id}}">{{.Title}}</a>
-            </li>
-        {{end}}
+        {{ range . }}
+            <li><a href="/items/{{ .Id }}">{{ .Title }}</a></li>
+        {{ end }}
     </ul>
-</body>
-</html>
+{{ end }}

@@ -1,14 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>RSS Feed</title>
-</head>
-<body>
-    <a href="/">Back to Home</a>
+{{ define "base" }}
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>RSS Feed Parser</title>
+        <link rel="stylesheet" href="/styles.css">
+    </head>
+    <body>
+        <h1>
+            {{ block "header" . }}{{ end }}
+        </h1>
 
-    {{if .Message}}
-        <p>{{.Message}}</p>
-    {{end}}
-</body>
-</html>
+        <a href="/">Home</a><br>
+
+        {{ block "content" . }}{{ end }}
+    </body>
+    </html>
+{{ end }}
+
+{{ define "backToChannels" }}
+    <a href="/channels/">Channels</a>
+{{ end }}

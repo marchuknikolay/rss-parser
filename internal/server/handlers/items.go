@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/marchuknikolay/rss-parser/internal/model"
+	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
 )
 
 type itemView struct {
@@ -22,7 +23,7 @@ func (h *Handler) getItems(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get items: "+err.Error())
 	}
 
-	return c.Render(http.StatusOK, "items.gohtml", items)
+	return c.Render(http.StatusOK, constants.ItemsTemplate, items)
 }
 
 func (h *Handler) getItemsByChannelId(c echo.Context) error {
@@ -37,7 +38,7 @@ func (h *Handler) getItemsByChannelId(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get items: "+err.Error())
 	}
 
-	return c.Render(http.StatusOK, "items.gohtml", items)
+	return c.Render(http.StatusOK, constants.ItemsTemplate, items)
 }
 
 func (h *Handler) getItemById(c echo.Context) error {
@@ -58,7 +59,7 @@ func (h *Handler) getItemById(c echo.Context) error {
 		Description: template.HTML(item.Description),
 	}
 
-	return c.Render(http.StatusOK, "item.gohtml", view)
+	return c.Render(http.StatusOK, constants.ItemTemplate, view)
 }
 
 func (h *Handler) deleteItem(c echo.Context) error {

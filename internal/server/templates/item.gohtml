@@ -1,21 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>RSS Feed</title>
-</head>
-<body>
-    <a href="/">Back to Home</a><br>
-    <a href="/channels/">Back to Channels</a>
+{{ define "header" }}
+    {{ .Title }}
+{{ end }}
 
-    <h1>{{.Title}}</h1>
+{{ define "content" }}
+    {{ template "backToChannels" . }}
+    
+    {{ if .PubDate }}
+        <h4>{{ formatDate .PubDate }}</h4>
+    {{ end }}
 
-    {{if .PubDate}}
-        <h4>{{formatDate .PubDate}}</h4>
-    {{end}}
-
-    {{if .Description}}
-        <p>{{.Description}}</p>
-    {{end}}
-</body>
-</html>
+    {{ if .Description }}
+        <p>{{ .Description }}</p>
+    {{ end }}
+{{ end }}

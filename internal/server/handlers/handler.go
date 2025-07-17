@@ -27,7 +27,7 @@ func (h *Handler) InitRoutes() *echo.Echo {
 		"formatDate": funcs.FormatDate,
 	}
 
-	router.Renderer = renderer.New("internal/server/templates/*.gohtml", &funcs)
+	router.Renderer = renderer.New("internal/server/templates/", &funcs)
 
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())

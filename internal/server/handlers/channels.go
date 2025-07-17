@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
 )
 
 func (h *Handler) importFeed(c echo.Context) error {
@@ -17,7 +18,7 @@ func (h *Handler) importFeed(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to import feed: "+err.Error())
 	}
 
-	return c.Render(http.StatusOK, "base.gohtml", struct{ Message string }{Message: "Import successful!"})
+	return c.Render(http.StatusOK, constants.MessageTemplate, struct{ Message string }{Message: "Import successful!"})
 }
 
 func (h *Handler) getChannels(c echo.Context) error {
@@ -26,7 +27,7 @@ func (h *Handler) getChannels(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get channels: "+err.Error())
 	}
 
-	return c.Render(http.StatusOK, "channels.gohtml", channels)
+	return c.Render(http.StatusOK, constants.ChannelsTemplate, channels)
 }
 
 func (h *Handler) deleteChannel(c echo.Context) error {

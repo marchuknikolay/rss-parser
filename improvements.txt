@@ -1,6 +1,7 @@
 Improvements:
-- Auto code formatting
+- Add concurrency
 - Update README
 - Refactor errors
 - Improve index.html
 - Add tests
+- Add interfaces into router related to db

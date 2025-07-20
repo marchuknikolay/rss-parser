@@ -1,0 +1,11 @@
+{{ define "header" }}
+    Channels
+{{ end }}
+
+{{ define "content" }}
+    <ul>
+        {{ range . }}
+            <li><a href="/channels/{{ .Id }}">{{ .Title }}</a></li>
+        {{ end }}
+    </ul>
+{{ end }}

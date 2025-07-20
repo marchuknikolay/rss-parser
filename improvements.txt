@@ -1,9 +1,5 @@
 Improvements:
-- Auto code formatting
-- Update README
-- Add database transactions
-- Create help for cli and migrate
-- Create README.md for cli and migrate
-- Use some package for parsing cmd arguments, e.g. flag
+- Add interfaces into router related to db
+- Add concurrency
+- Refactor errors
 - Add tests
-- Create web application

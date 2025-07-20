@@ -8,6 +8,8 @@ services:
       db:
         condition: service_healthy
     command: [ "/app/start.sh" ]
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
 
   db:
     image: postgres:alpine

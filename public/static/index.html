@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>RSS Feed Parser</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+    <h1>RSS Feed API Tester</h1>
+
+    <h2>GET /channels/</h2>
+    <form method="get" action="/channels/">
+        <button type="submit">Fetch All Channels</button>
+    </form>
+
+    <h2>POST /channels/</h2>
+    <form method="post" action="/channels/">
+        <input id="postChannelUrl" name="url" placeholder="Feed URL" required /><br />
+        <button type="submit">Import Feed</button>
+    </form>
+
+    <h2>GET /channels/:id/</h2>
+    <form method="get" onsubmit="handleGetItemsByChannelId(event)">
+        <input id="getChannelId" placeholder="Channel ID" required /><br />
+        <button type="submit">Fetch Items by Channel ID</button>
+    </form>
+
+    <h2>DELETE /channels/:id/</h2>
+    <form method="post" onsubmit="handleDeleteChannel(event)">
+        <input id="deleteChannelId" placeholder="Channel ID" required /><br />
+        <button type="submit">Delete Channel</button>
+    </form>
+
+    <h2>PUT /channels/:id/</h2>
+    <form method="post" onsubmit="handlePutChannel(event)">
+        <input id="putChannelId" placeholder="ID" required /><br />
+        <input id="putChannelTitle" placeholder="Title" /><br />
+        <input id="putChannelLanguage" placeholder="Language" /><br />
+        <textarea id="putChannelDescription" placeholder="Description"></textarea><br />
+        <button type="submit">Update Channel</button>
+    </form>
+
+    <div class="divider"></div>
+
+    <h2>GET /items/</h2>
+    <form method="get" action="/items/">
+        <button type="submit">Fetch All Items</button>
+    </form>
+
+    <h2>GET /items/:id/</h2>
+    <form method="get" onsubmit="handleGetItemById(event)">
+        <input id="getItemId" placeholder="Item ID" required /><br />
+        <button type="submit">Fetch Item by ID</button>
+    </form>
+
+    <h2>DELETE /items/:id/</h2>
+    <form method="post" onsubmit="handleDeleteItem(event)">
+        <input id="deleteItemId" placeholder="Item ID" required /><br />
+        <button type="submit">Delete Item</button>
+    </form>
+
+    <h2>PUT /items/:id/</h2>
+    <form method="post" onsubmit="handlePutItem(event)">
+        <input id="putItemId" placeholder="ID" required /><br />
+        <input id="putItemTitle" placeholder="Title" /><br />
+        <textarea id="putItemDescription" placeholder="Description"></textarea><br />
+        <input type="datetime-local" id="putItemPubDate" /><br />
+        <button type="submit">Update Item</button>
+    </form>
+
+    <script src="/js/main.js"></script>
+</body>
+
+</html>

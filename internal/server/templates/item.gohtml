@@ -1,0 +1,15 @@
+{{ define "header" }}
+    {{ .Title }}
+{{ end }}
+
+{{ define "content" }}
+    {{ template "backToChannels" . }}
+    
+    {{ if .PubDate }}
+        <h4>{{ formatDate .PubDate }}</h4>
+    {{ end }}
+
+    {{ if .Description }}
+        <p>{{ .Description }}</p>
+    {{ end }}
+{{ end }}

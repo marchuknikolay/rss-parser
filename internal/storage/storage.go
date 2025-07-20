@@ -2,14 +2,24 @@ package storage
 
 import (
 	"context"
-	"time"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/marchuknikolay/rss-parser/internal/model"
 )
 
+type RowQueryer interface {
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+}
+
+type CommandExecutor interface {
+	Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error)
+}
+
 type Storage struct {
-	pool *pgxpool.Pool
+	Pool *pgxpool.Pool
+	Tx   pgx.Tx
 }
 
 func New(connString string) (*Storage, error) {
@@ -18,101 +28,48 @@ func New(connString string) (*Storage, error) {
 		return nil, err
 	}
 
-	return &Storage{pool: pool}, nil
+	return &Storage{Pool: pool}, nil
 }
 
 func (s *Storage) Close() {
-	s.pool.Close()
+	s.Pool.Close()
 }
 
-func (s *Storage) SaveItems(items []model.Item, channelId int) error {
-	for _, item := range items {
-		_, err := s.pool.Exec(context.Background(),
-			"INSERT INTO items (title, description, pub_date, channel_id) VALUES ($1, $2, $3, $4)",
-			item.Title, item.Description, item.PubDate, channelId)
-
-		if err != nil {
-			return err
-		}
+func (s *Storage) WithTx(tx pgx.Tx) *Storage {
+	return &Storage{
+		Pool: s.Pool,
+		Tx:   tx,
 	}
-
-	return nil
 }
 
-func (s *Storage) FetchItemsByChannelId(channelId int) ([]model.Item, error) {
-	rows, err := s.pool.Query(context.Background(),
-		"SELECT title, description, pub_date FROM items WHERE channel_id = $1", channelId)
+func (s *Storage) WithTransaction(ctx context.Context, fn func(*Storage) error) error {
+	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
-		return nil, err
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	txStorage := s.WithTx(tx)
+
+	if err := fn(txStorage); err != nil {
+		return err
 	}
 
-	defer rows.Close()
-
-	items := []model.Item{}
-
-	for rows.Next() {
-		var (
-			title, description string
-			pubDate            time.Time
-		)
-
-		if err := rows.Scan(&title, &description, &pubDate); err != nil {
-			return nil, err
-		}
-
-		items = append(items, model.Item{Title: title, Description: description, PubDate: model.DateTime(pubDate)})
-	}
-
-	return items, nil
+	return tx.Commit(ctx)
 }
 
-func (s *Storage) SaveChannels(channels []model.Channel) error {
-	for _, channel := range channels {
-		var channelId int
-
-		err := s.pool.QueryRow(context.Background(),
-			"INSERT INTO channels (title, language, description) VALUES ($1, $2, $3) RETURNING id",
-			channel.Title, channel.Language, channel.Description).Scan(&channelId)
-
-		if err != nil {
-			return err
-		}
-
-		if err = s.SaveItems(channel.Items, channelId); err != nil {
-			return err
-		}
+func (s *Storage) QueryExecutor() RowQueryer {
+	if s.Tx != nil {
+		return s.Tx
 	}
 
-	return nil
+	return s.Pool
 }
 
-func (s *Storage) FetchChannels() ([]model.Channel, error) {
-	rows, err := s.pool.Query(context.Background(), "SELECT id, title, language, description FROM channels")
-	if err != nil {
-		return nil, err
+func (s *Storage) ExecExecutor() CommandExecutor {
+	if s.Tx != nil {
+		return s.Tx
 	}
 
-	defer rows.Close()
-
-	channels := []model.Channel{}
-
-	for rows.Next() {
-		var (
-			id                           int
-			title, language, description string
-		)
-
-		if err := rows.Scan(&id, &title, &language, &description); err != nil {
-			return nil, err
-		}
-
-		items, err := s.FetchItemsByChannelId(id)
-		if err != nil {
-			return nil, err
-		}
-
-		channels = append(channels, model.Channel{Title: title, Language: language, Description: description, Items: items})
-	}
-
-	return channels, nil
+	return s.Pool
 }

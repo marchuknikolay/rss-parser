@@ -1,64 +1,66 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/marchuknikolay/rss-parser/internal/config"
-	"github.com/marchuknikolay/rss-parser/internal/fetcher"
-	"github.com/marchuknikolay/rss-parser/internal/model"
-	"github.com/marchuknikolay/rss-parser/internal/parser"
-	"github.com/marchuknikolay/rss-parser/internal/printer"
+	"github.com/marchuknikolay/rss-parser/internal/repository"
+	"github.com/marchuknikolay/rss-parser/internal/server"
+	"github.com/marchuknikolay/rss-parser/internal/server/handlers"
+	"github.com/marchuknikolay/rss-parser/internal/service"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
-const (
-	expectedArgsCount = 2
-	urlIndex          = 1
-)
-
 func main() {
-	if actualArgsCount := len(os.Args); actualArgsCount != expectedArgsCount {
-		log.Fatalf("Expected args count is %v, but actual is %v\n", expectedArgsCount, actualArgsCount)
-	}
-
-	url := os.Args[urlIndex]
-
-	bs, err := fetcher.Fetch(url)
+	config, err := config.New()
 	if err != nil {
-		log.Fatalf("Error fetching data: %v\n", err)
-	}
-
-	rss, err := parser.Parse(bs)
-	if err != nil {
-		log.Fatalf("Error parsing data: %v\n", err)
-	}
-
-	dbConfig, err := config.NewDBConfig()
-	if err != nil {
-		log.Fatalf("failed loading config: %v", err)
+		log.Fatalf("Failed loading config: %v", err)
 	}
 
 	connString := fmt.Sprintf("postgres://%v:%v@%v:%v/%v",
-		dbConfig.User, dbConfig.Password, dbConfig.Host, dbConfig.ContainerPort, dbConfig.Name)
+		config.DB.User, config.DB.Password, config.DB.Host, config.DB.ContainerPort, config.DB.Name)
 
 	storage, err := storage.New(connString)
 	if err != nil {
-		log.Fatalf("failed creating a new database connection: %v", err)
+		log.Fatalf("Failed creating a new database connection: %v", err)
 	}
 
-	defer storage.Close()
+	channelRepository := repository.NewChannelRepository(storage)
+	itemRepository := repository.NewItemRepository(storage)
 
-	if err := storage.SaveChannels(rss.Channels); err != nil {
-		log.Fatalf("failed saving channels: %v", err)
+	service := service.New(channelRepository, itemRepository, storage)
+
+	handler := handlers.New(service)
+
+	server := server.New(config.Server.Port, handler.InitRoutes())
+
+	go func() {
+		if err = server.Start(); err != nil {
+			log.Fatalf("failed starting the server: %v", err)
+		}
+	}()
+
+	log.Printf("The server is running on port %v", config.Server.Port)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	log.Println("Shutting down the server")
+
+	ctx, cancel := context.WithTimeout(context.Background(), config.Server.ShutdownTimeout)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("Failed shutting down the server: %v", err)
 	}
 
-	fetchedChannels, err := storage.FetchChannels()
-	if err != nil {
-		log.Fatalf("failed fetching channels: %v", err)
-	}
+	storage.Close()
 
-	printer.PrintRss(model.Rss{Channels: fetchedChannels})
+	log.Println("The server stopped gracefully")
 }

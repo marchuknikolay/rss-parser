@@ -1,0 +1,13 @@
+{{ define "header" }}
+    Items
+{{ end }}
+
+{{ define "content" }}
+    {{ template "backToChannels" . }}
+    
+    <ul>
+        {{ range . }}
+            <li><a href="/items/{{ .Id }}">{{ .Title }}</a></li>
+        {{ end }}
+    </ul>
+{{ end }}

@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/marchuknikolay/rss-parser/internal/fetcher"
@@ -23,6 +26,34 @@ func New(channelRepo *repository.ChannelRepository, itemRepo *repository.ItemRep
 		itemRepository:    itemRepo,
 		storage:           storage,
 	}
+}
+
+func (s *Service) ImportFeeds(ctx context.Context, urls []string) error {
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var failed []string
+
+	wg.Add(len(urls))
+
+	for _, url := range urls {
+		go func(url string) {
+			defer wg.Done()
+
+			if err := s.ImportFeed(ctx, url); err != nil {
+				mu.Lock()
+				failed = append(failed, fmt.Sprintf("URL: %v, Error: %v", url, err))
+				mu.Unlock()
+			}
+		}(url)
+	}
+
+	wg.Wait()
+
+	if lenFailed := len(failed); lenFailed > 0 {
+		return fmt.Errorf("failed to import %v feeds:\n- %s", lenFailed, strings.Join(failed, "\n- "))
+	}
+
+	return nil
 }
 
 func (s *Service) ImportFeed(ctx context.Context, url string) error {

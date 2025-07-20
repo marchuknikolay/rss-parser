@@ -16,8 +16,10 @@
 
     <h2>POST /channels/</h2>
     <form method="post" action="/channels/">
-        <input id="postChannelUrl" name="url" placeholder="Feed URL" required /><br />
-        <button type="submit">Import Feed</button>
+        <label for="urls">Feed URLs (one per line):</label><br />
+        <textarea name="urls" id="postChannelUrls" rows="6" cols="60"
+            placeholder="https://example.com/feed1.xml&#10;https://example.com/feed2.xml" required></textarea><br />
+        <button type="submit">Import Feeds</button>
     </form>
 
     <h2>GET /channels/:id/</h2>

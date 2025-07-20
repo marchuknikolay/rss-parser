@@ -37,7 +37,7 @@ func (h *Handler) InitRoutes() *echo.Echo {
 
 	channels := router.Group("/channels")
 	{
-		channels.POST("/", h.importFeed)
+		channels.POST("/", h.importFeeds)
 		channels.GET("/", h.getChannels)
 		channels.GET("/:id/", h.getItemsByChannelId)
 		channels.PUT("/:id/", h.updateChannel)

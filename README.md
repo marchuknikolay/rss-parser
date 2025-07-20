@@ -182,7 +182,7 @@ Updates the specified item data.
 DELETE /items/${id}/
 ```
 
-Deletes the specified channel.
+Deletes the specified item.
 
 | Parameter | Type | Description              |
 |-----------|------|--------------------------|

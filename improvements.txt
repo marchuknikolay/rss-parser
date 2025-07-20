@@ -1,6 +1,5 @@
 Improvements:
 - Fix an issue, with improting duplicated urls
-- Add a possibility to cancel importing
 - Add interfaces into router related to db
 - Add concurrency
 - Refactor errors

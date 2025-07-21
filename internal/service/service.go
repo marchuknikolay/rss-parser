@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -29,28 +30,46 @@ func New(channelRepo *repository.ChannelRepository, itemRepo *repository.ItemRep
 }
 
 func (s *Service) ImportFeeds(ctx context.Context, urls []string) error {
+	maxWorkers := runtime.GOMAXPROCS(0)
+
+	dataChan := make(chan string)
+	errorsChan := make(chan string)
+
 	var wg sync.WaitGroup
-	var mu sync.Mutex
-	var failed []string
+	wg.Add(maxWorkers)
 
-	wg.Add(len(urls))
-
-	for _, url := range urls {
-		go func(url string) {
+	for range maxWorkers {
+		go func() {
 			defer wg.Done()
 
-			if err := s.ImportFeed(ctx, url); err != nil {
-				mu.Lock()
-				failed = append(failed, fmt.Sprintf("URL: %v, Error: %v", url, err))
-				mu.Unlock()
+			for url := range dataChan {
+				if err := s.ImportFeed(ctx, url); err != nil {
+					errorsChan <- fmt.Sprintf("URL: %v, Error: %v", url, err)
+				}
 			}
-		}(url)
+		}()
 	}
 
-	wg.Wait()
+	go func() {
+		for _, url := range urls {
+			dataChan <- url
+		}
 
-	if lenFailed := len(failed); lenFailed > 0 {
-		return fmt.Errorf("failed to import %v feeds:\n- %s", lenFailed, strings.Join(failed, "\n- "))
+		close(dataChan)
+	}()
+
+	go func() {
+		wg.Wait()
+		close(errorsChan)
+	}()
+
+	errorsStr := make([]string, 0, len(urls))
+	for err := range errorsChan {
+		errorsStr = append(errorsStr, err)
+	}
+
+	if errorsNum := len(errorsStr); errorsNum > 0 {
+		return fmt.Errorf("failed to import %v feeds: - %v", errorsNum, strings.Join(errorsStr, "; - "))
 	}
 
 	return nil

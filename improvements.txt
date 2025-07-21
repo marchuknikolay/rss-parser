@@ -1,5 +1,4 @@
 Improvements:
-- Fix an issue, with improting duplicated urls
 - Add interfaces into router related to db
 - Add concurrency
 - Refactor errors

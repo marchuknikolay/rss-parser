@@ -136,25 +136,20 @@ func (s *Service) UpdateItem(ctx context.Context, itemId int, title, description
 
 func (s *Service) saveChannels(ctx context.Context, channels []model.Channel) error {
 	return s.storage.WithTransaction(ctx, func(txStorage *storage.Storage) error {
-		originalChannelStorage := s.channelRepository.Storage
-		originalItemStorage := s.itemRepository.Storage
-
-		defer func() {
-			s.channelRepository.Storage = originalChannelStorage
-			s.itemRepository.Storage = originalItemStorage
-		}()
-
-		s.channelRepository.Storage = txStorage
-		s.itemRepository.Storage = txStorage
+		// Create new repositories with the transaction storage.
+		// It prevents race conditions that can occur when multiple goroutines
+		// try to access the same repository concurrently.
+		channelRepository := repository.NewChannelRepository(txStorage)
+		itemRepository := repository.NewItemRepository(txStorage)
 
 		for _, channel := range channels {
-			channelId, err := s.channelRepository.Save(ctx, channel)
+			channelId, err := channelRepository.Save(ctx, channel)
 			if err != nil {
 				return err
 			}
 
 			for _, item := range channel.Items {
-				if err := s.itemRepository.Save(ctx, item, channelId); err != nil {
+				if err := itemRepository.Save(ctx, item, channelId); err != nil {
 					return err
 				}
 			}

@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
@@ -30,29 +28,11 @@ func (h *Handler) importFeeds(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "No valid URLs provided")
 	}
 
-	start := time.Now()
 	if err := h.service.ImportFeeds(c.Request().Context(), urls); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to import feeds: "+err.Error())
 	}
-	fmt.Printf("Concurrent import took: %s\n", time.Since(start))
-
-	/*if err := h.importFeedsSequential(c, urls); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to import feeds sequentially: "+err.Error())
-	}*/
 
 	return c.Render(http.StatusOK, constants.MessageTemplate, struct{ Message string }{Message: "Import successful!"})
-}
-
-func (h *Handler) importFeedsSequential(c echo.Context, urls []string) error {
-	start := time.Now()
-	for _, url := range urls {
-		err := h.service.ImportFeed(c.Request().Context(), url)
-		if err != nil {
-			fmt.Printf("Failed to import feed %s: %s\n", url, err)
-		}
-	}
-	fmt.Printf("Sequential import took: %s\n", time.Since(start))
-	return nil
 }
 
 func (h *Handler) getChannels(c echo.Context) error {

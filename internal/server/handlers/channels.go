@@ -18,8 +18,7 @@ func (h *Handler) importFeeds(c echo.Context) error {
 	lines := strings.Split(rawUrls, "\n")
 	urls := make([]string, 0, len(lines))
 	for _, line := range lines {
-		url := strings.TrimSpace(line)
-		if url != "" {
+		if url := strings.TrimSpace(line); url != "" {
 			urls = append(urls, url)
 		}
 	}

@@ -80,29 +80,24 @@ func (s *Service) GetChannelById(ctx context.Context, id int) (model.Channel, er
 
 func (s *Service) DeleteChannel(ctx context.Context, id int) error {
 	return s.storage.WithTransaction(ctx, func(txStorage *storage.Storage) error {
-		originalChannelStorage := s.channelRepository.Storage
-		originalItemStorage := s.itemRepository.Storage
+		// Create new repositories with the transaction storage.
+		// It prevents race conditions that can occur when multiple goroutines
+		// try to access the same repository concurrently.
+		channelRepository := repository.NewChannelRepository(txStorage)
+		itemRepository := repository.NewItemRepository(txStorage)
 
-		defer func() {
-			s.channelRepository.Storage = originalChannelStorage
-			s.itemRepository.Storage = originalItemStorage
-		}()
-
-		s.channelRepository.Storage = txStorage
-		s.itemRepository.Storage = txStorage
-
-		items, err := s.itemRepository.GetByChannelId(ctx, id)
+		items, err := itemRepository.GetByChannelId(ctx, id)
 		if err != nil {
 			return err
 		}
 
 		for _, item := range items {
-			if err := s.itemRepository.Delete(ctx, item.Id); err != nil {
+			if err := itemRepository.Delete(ctx, item.Id); err != nil {
 				return err
 			}
 		}
 
-		if err = s.channelRepository.Delete(ctx, id); err != nil {
+		if err = channelRepository.Delete(ctx, id); err != nil {
 			return err
 		}
 

@@ -12,17 +12,17 @@ import (
 )
 
 type ItemRepository struct {
-	Storage *storage.Storage
+	storage *storage.Storage
 }
 
-func NewItemRepository(storage *storage.Storage) *ItemRepository {
-	return &ItemRepository{Storage: storage}
+func NewItemRepository(st *storage.Storage) *ItemRepository {
+	return &ItemRepository{storage: st}
 }
 
 func (r *ItemRepository) Save(ctx context.Context, item model.Item, channelId int) error {
 	query := "INSERT INTO items (title, description, pub_date, channel_id) VALUES ($1, $2, $3, $4)"
 
-	executor := r.Storage.ExecExecutor()
+	executor := r.storage.ExecExecutor()
 	_, err := executor.Exec(ctx, query, item.Title, item.Description, time.Time(item.PubDate), channelId)
 
 	return err
@@ -41,7 +41,7 @@ func (r *ItemRepository) GetByChannelId(ctx context.Context, channelId int) ([]m
 func (r *ItemRepository) GetById(ctx context.Context, itemId int) (model.Item, error) {
 	query := `SELECT id, title, description, pub_date FROM items WHERE id = $1`
 
-	executor := r.Storage.QueryExecutor()
+	executor := r.storage.QueryExecutor()
 
 	var (
 		id                 int
@@ -68,7 +68,7 @@ func (r *ItemRepository) GetById(ctx context.Context, itemId int) (model.Item, e
 func (r *ItemRepository) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM items WHERE id = $1`
 
-	executor := r.Storage.ExecExecutor()
+	executor := r.storage.ExecExecutor()
 	tag, err := executor.Exec(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete item with id=%d: %w", id, err)
@@ -89,7 +89,7 @@ func (r *ItemRepository) Update(ctx context.Context, id int, title, description 
 		RETURNING id, title, description, pub_date
 	`
 
-	executor := r.Storage.QueryExecutor()
+	executor := r.storage.QueryExecutor()
 	row := executor.QueryRow(ctx, query, title, description, pubTime, id)
 
 	var item model.Item
@@ -105,7 +105,7 @@ func (r *ItemRepository) Update(ctx context.Context, id int, title, description 
 }
 
 func (r *ItemRepository) getItems(ctx context.Context, query string, args ...any) ([]model.Item, error) {
-	executor := r.Storage.QueryExecutor()
+	executor := r.storage.QueryExecutor()
 
 	rows, err := executor.Query(ctx, query, args...)
 	if err != nil {

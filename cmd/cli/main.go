@@ -57,7 +57,7 @@ func main() {
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("Failed shutting down the server: %v", err)
+		log.Printf("Failed shutting down the server: %v", err)
 	}
 
 	storage.Close()

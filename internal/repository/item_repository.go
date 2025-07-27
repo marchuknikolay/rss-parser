@@ -11,6 +11,8 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
+var ErrItemNotFound = errors.New("item not found")
+
 type ItemRepository struct {
 	storage *storage.Storage
 }
@@ -51,7 +53,7 @@ func (r *ItemRepository) GetById(ctx context.Context, itemId int) (model.Item, e
 
 	if err := executor.QueryRow(ctx, query, itemId).Scan(&id, &title, &description, &pubDate); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Item{}, fmt.Errorf("item with id=%d not found: %w", itemId, err)
+			return model.Item{}, ErrItemNotFound
 		}
 
 		return model.Item{}, fmt.Errorf("failed to scan item: %w", err)
@@ -75,7 +77,7 @@ func (r *ItemRepository) Delete(ctx context.Context, id int) error {
 	}
 
 	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("no item found with id=%d", id)
+		return ErrItemNotFound
 	}
 
 	return nil
@@ -95,7 +97,7 @@ func (r *ItemRepository) Update(ctx context.Context, id int, title, description 
 	var item model.Item
 	if err := row.Scan(&item.Id, &item.Title, &item.Description, &item.PubDate); err != nil {
 		if err == pgx.ErrNoRows {
-			return model.Item{}, fmt.Errorf("no item found with id=%d", id)
+			return model.Item{}, ErrItemNotFound
 		}
 
 		return model.Item{}, fmt.Errorf("failed to update item with id=%d: %w", id, err)

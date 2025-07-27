@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
 )
 
@@ -51,6 +53,10 @@ func (h *Handler) deleteChannel(c echo.Context) error {
 	}
 
 	if err = h.service.DeleteChannel(c.Request().Context(), id); err != nil {
+		if errors.Is(err, repository.ErrChannelNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Channel not found")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete channel: "+err.Error())
 	}
 
@@ -76,6 +82,10 @@ func (h *Handler) updateChannel(c echo.Context) error {
 
 	updatedChannel, err := h.service.UpdateChannel(c.Request().Context(), id, input.Title, input.Language, input.Description)
 	if err != nil {
+		if errors.Is(err, repository.ErrChannelNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Channel not found")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update channel: "+err.Error())
 	}
 

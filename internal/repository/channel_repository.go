@@ -10,6 +10,8 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
+var ErrChannelNotFound = errors.New("channel not found")
+
 type ChannelRepository struct {
 	storage *storage.Storage
 }
@@ -66,7 +68,7 @@ func (r *ChannelRepository) GetById(ctx context.Context, id int) (model.Channel,
 	var channel model.Channel
 	if err := row.Scan(&channel.Id, &channel.Title, &channel.Language, &channel.Description); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Channel{}, fmt.Errorf("channel with id=%d not found: %w", id, err)
+			return model.Channel{}, ErrChannelNotFound
 		}
 
 		return model.Channel{}, fmt.Errorf("failed to scan channel: %w", err)
@@ -85,7 +87,7 @@ func (r *ChannelRepository) Delete(ctx context.Context, id int) error {
 	}
 
 	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("no channel found with id=%d", id)
+		return ErrChannelNotFound
 	}
 
 	return nil
@@ -105,7 +107,7 @@ func (r *ChannelRepository) Update(ctx context.Context, id int, title, language,
 	var channel model.Channel
 	if err := row.Scan(&channel.Id, &channel.Title, &channel.Language, &channel.Description); err != nil {
 		if err == pgx.ErrNoRows {
-			return model.Channel{}, fmt.Errorf("no channel found with id=%d", id)
+			return model.Channel{}, ErrChannelNotFound
 		}
 
 		return model.Channel{}, fmt.Errorf("failed to update channel with id=%d: %w", id, err)

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/marchuknikolay/rss-parser/internal/model"
+	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
 )
 
@@ -50,6 +52,10 @@ func (h *Handler) getItemById(c echo.Context) error {
 
 	item, err := h.service.GetItemById(c.Request().Context(), id)
 	if err != nil {
+		if errors.Is(err, repository.ErrItemNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Item not found")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get item: "+err.Error())
 	}
 
@@ -71,6 +77,10 @@ func (h *Handler) deleteItem(c echo.Context) error {
 
 	err = h.service.DeleteItem(c.Request().Context(), id)
 	if err != nil {
+		if errors.Is(err, repository.ErrItemNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Item not found")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete item: "+err.Error())
 	}
 
@@ -102,6 +112,10 @@ func (h *Handler) updateItem(c echo.Context) error {
 
 	updatedItem, err := h.service.UpdateItem(c.Request().Context(), id, input.Title, input.Description, pubDate)
 	if err != nil {
+		if errors.Is(err, repository.ErrItemNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Item not found")
+		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update item: "+err.Error())
 	}
 

@@ -50,7 +50,7 @@ func TestNew_Success(t *testing.T) {
 	require.Equal(t, serverShutdownTimeout, config.Server.ShutdownTimeout)
 }
 
-func TestNew_Failure(t *testing.T) {
+func TestNew_MissingEnvVariables(t *testing.T) {
 	os.Clearenv()
 
 	config, err := New()

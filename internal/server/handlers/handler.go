@@ -20,14 +20,18 @@ func New(service *service.Service) *Handler {
 	}
 }
 
-func (h *Handler) InitRoutes() *echo.Echo {
+func (h *Handler) InitRoutes() (*echo.Echo, error) {
 	router := echo.New()
 
 	funcs := template.FuncMap{
 		"formatDate": funcs.FormatDate,
 	}
 
-	router.Renderer = renderer.New("internal/server/templates/", &funcs)
+	renderer, err := renderer.New("internal/server/templates/", &funcs)
+	if err != nil {
+		return nil, err
+	}
+	router.Renderer = renderer
 
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
@@ -52,5 +56,5 @@ func (h *Handler) InitRoutes() *echo.Echo {
 		items.PUT("/:id/", h.updateItem)
 	}
 
-	return router
+	return router, nil
 }

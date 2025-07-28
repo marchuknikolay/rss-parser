@@ -17,6 +17,11 @@ type CommandExecutor interface {
 	Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error)
 }
 
+type Interface interface {
+	QueryExecutor() RowQueryer
+	ExecExecutor() CommandExecutor
+}
+
 type Storage struct {
 	Pool *pgxpool.Pool
 	Tx   pgx.Tx

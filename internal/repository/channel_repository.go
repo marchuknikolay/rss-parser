@@ -13,10 +13,10 @@ import (
 var ErrChannelNotFound = errors.New("channel not found")
 
 type ChannelRepository struct {
-	storage *storage.Storage
+	storage storage.Interface
 }
 
-func NewChannelRepository(st *storage.Storage) *ChannelRepository {
+func NewChannelRepository(st storage.Interface) *ChannelRepository {
 	return &ChannelRepository{storage: st}
 }
 

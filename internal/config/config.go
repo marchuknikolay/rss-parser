@@ -17,7 +17,7 @@ type DBConfig struct {
 }
 
 type ServerConfig struct {
-	Port            string        `env:"SERVER_PORT, required"`
+	Port            int           `env:"SERVER_PORT, required"`
 	ShutdownTimeout time.Duration `env:"SERVER_SHUTDOWN_TIMEOUT, required"`
 }
 

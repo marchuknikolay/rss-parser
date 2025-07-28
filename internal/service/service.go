@@ -2,6 +2,10 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"runtime"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/marchuknikolay/rss-parser/internal/fetcher"
@@ -23,6 +27,52 @@ func New(channelRepo *repository.ChannelRepository, itemRepo *repository.ItemRep
 		itemRepository:    itemRepo,
 		storage:           storage,
 	}
+}
+
+func (s *Service) ImportFeeds(ctx context.Context, urls []string) error {
+	maxWorkers := runtime.GOMAXPROCS(0)
+
+	dataChan := make(chan string)
+	errorsChan := make(chan string)
+
+	var wg sync.WaitGroup
+	wg.Add(maxWorkers)
+
+	for range maxWorkers {
+		go func() {
+			defer wg.Done()
+
+			for url := range dataChan {
+				if err := s.ImportFeed(ctx, url); err != nil {
+					errorsChan <- fmt.Sprintf("URL: %v, Error: %v", url, err)
+				}
+			}
+		}()
+	}
+
+	go func() {
+		for _, url := range urls {
+			dataChan <- url
+		}
+
+		close(dataChan)
+	}()
+
+	go func() {
+		wg.Wait()
+		close(errorsChan)
+	}()
+
+	errorsStr := make([]string, 0, len(urls))
+	for err := range errorsChan {
+		errorsStr = append(errorsStr, err)
+	}
+
+	if errorsNum := len(errorsStr); errorsNum > 0 {
+		return fmt.Errorf("failed to import %v feeds: - %v", errorsNum, strings.Join(errorsStr, "; - "))
+	}
+
+	return nil
 }
 
 func (s *Service) ImportFeed(ctx context.Context, url string) error {
@@ -49,29 +99,24 @@ func (s *Service) GetChannelById(ctx context.Context, id int) (model.Channel, er
 
 func (s *Service) DeleteChannel(ctx context.Context, id int) error {
 	return s.storage.WithTransaction(ctx, func(txStorage *storage.Storage) error {
-		originalChannelStorage := s.channelRepository.Storage
-		originalItemStorage := s.itemRepository.Storage
+		// Create new repositories with the transaction storage.
+		// It prevents race conditions that can occur when multiple goroutines
+		// try to access the same repository concurrently.
+		channelRepository := repository.NewChannelRepository(txStorage)
+		itemRepository := repository.NewItemRepository(txStorage)
 
-		defer func() {
-			s.channelRepository.Storage = originalChannelStorage
-			s.itemRepository.Storage = originalItemStorage
-		}()
-
-		s.channelRepository.Storage = txStorage
-		s.itemRepository.Storage = txStorage
-
-		items, err := s.itemRepository.GetByChannelId(ctx, id)
+		items, err := itemRepository.GetByChannelId(ctx, id)
 		if err != nil {
 			return err
 		}
 
 		for _, item := range items {
-			if err := s.itemRepository.Delete(ctx, item.Id); err != nil {
+			if err := itemRepository.Delete(ctx, item.Id); err != nil {
 				return err
 			}
 		}
 
-		if err = s.channelRepository.Delete(ctx, id); err != nil {
+		if err = channelRepository.Delete(ctx, id); err != nil {
 			return err
 		}
 
@@ -105,25 +150,20 @@ func (s *Service) UpdateItem(ctx context.Context, itemId int, title, description
 
 func (s *Service) saveChannels(ctx context.Context, channels []model.Channel) error {
 	return s.storage.WithTransaction(ctx, func(txStorage *storage.Storage) error {
-		originalChannelStorage := s.channelRepository.Storage
-		originalItemStorage := s.itemRepository.Storage
-
-		defer func() {
-			s.channelRepository.Storage = originalChannelStorage
-			s.itemRepository.Storage = originalItemStorage
-		}()
-
-		s.channelRepository.Storage = txStorage
-		s.itemRepository.Storage = txStorage
+		// Create new repositories with the transaction storage.
+		// It prevents race conditions that can occur when multiple goroutines
+		// try to access the same repository concurrently.
+		channelRepository := repository.NewChannelRepository(txStorage)
+		itemRepository := repository.NewItemRepository(txStorage)
 
 		for _, channel := range channels {
-			channelId, err := s.channelRepository.Save(ctx, channel)
+			channelId, err := channelRepository.Save(ctx, channel)
 			if err != nil {
 				return err
 			}
 
 			for _, item := range channel.Items {
-				if err := s.itemRepository.Save(ctx, item, channelId); err != nil {
+				if err := itemRepository.Save(ctx, item, channelId); err != nil {
 					return err
 				}
 			}

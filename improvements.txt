@@ -1,5 +1,7 @@
 Improvements:
 - Add interfaces into router related to db
-- Add concurrency
-- Refactor errors
+- Review errors
 - Add tests
+- Replace error by panic when it's better
+- Investigate if log.Fatalf should be removed
+- Investigate a possibility to use https://pkg.go.dev/embed

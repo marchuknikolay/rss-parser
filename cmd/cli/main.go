@@ -35,9 +35,12 @@ func main() {
 
 	service := service.New(channelRepository, itemRepository, storage)
 
-	handler := handlers.New(service)
+	echo, err := handlers.New(service).InitRoutes()
+	if err != nil {
+		log.Fatalf("Failed initializing routes: %v", err)
+	}
 
-	server := server.New(config.Server.Port, handler.InitRoutes())
+	server := server.New(config.Server.Port, echo)
 
 	go func() {
 		if err = server.Start(); err != nil {
@@ -57,7 +60,7 @@ func main() {
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("Failed shutting down the server: %v", err)
+		log.Printf("Failed shutting down the server: %v", err)
 	}
 
 	storage.Close()

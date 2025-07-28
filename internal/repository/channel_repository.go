@@ -10,19 +10,21 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
+var ErrChannelNotFound = errors.New("channel not found")
+
 type ChannelRepository struct {
-	Storage *storage.Storage
+	storage *storage.Storage
 }
 
-func NewChannelRepository(storage *storage.Storage) *ChannelRepository {
-	return &ChannelRepository{Storage: storage}
+func NewChannelRepository(st *storage.Storage) *ChannelRepository {
+	return &ChannelRepository{storage: st}
 }
 
 func (r *ChannelRepository) Save(ctx context.Context, channel model.Channel) (int, error) {
 	var channelId int
 	query := "INSERT INTO channels (title, language, description) VALUES ($1, $2, $3) RETURNING id"
 
-	executor := r.Storage.QueryExecutor()
+	executor := r.storage.QueryExecutor()
 	err := executor.QueryRow(ctx, query, channel.Title, channel.Language, channel.Description).Scan(&channelId)
 
 	return channelId, err
@@ -31,7 +33,7 @@ func (r *ChannelRepository) Save(ctx context.Context, channel model.Channel) (in
 func (r *ChannelRepository) GetAll(ctx context.Context) ([]model.Channel, error) {
 	query := `SELECT id, title, language, description FROM channels`
 
-	executor := r.Storage.QueryExecutor()
+	executor := r.storage.QueryExecutor()
 	rows, err := executor.Query(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query channels: %w", err)
@@ -60,13 +62,13 @@ func (r *ChannelRepository) GetAll(ctx context.Context) ([]model.Channel, error)
 func (r *ChannelRepository) GetById(ctx context.Context, id int) (model.Channel, error) {
 	query := `SELECT id, title, language, description FROM channels WHERE id = $1`
 
-	executor := r.Storage.QueryExecutor()
+	executor := r.storage.QueryExecutor()
 	row := executor.QueryRow(ctx, query, id)
 
 	var channel model.Channel
 	if err := row.Scan(&channel.Id, &channel.Title, &channel.Language, &channel.Description); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Channel{}, fmt.Errorf("channel with id=%d not found: %w", id, err)
+			return model.Channel{}, ErrChannelNotFound
 		}
 
 		return model.Channel{}, fmt.Errorf("failed to scan channel: %w", err)
@@ -78,14 +80,14 @@ func (r *ChannelRepository) GetById(ctx context.Context, id int) (model.Channel,
 func (r *ChannelRepository) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM channels WHERE id = $1`
 
-	executor := r.Storage.ExecExecutor()
+	executor := r.storage.ExecExecutor()
 	tag, err := executor.Exec(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete channel with id=%d: %w", id, err)
 	}
 
 	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("no channel found with id=%d", id)
+		return ErrChannelNotFound
 	}
 
 	return nil
@@ -99,13 +101,13 @@ func (r *ChannelRepository) Update(ctx context.Context, id int, title, language,
 		RETURNING id, title, language, description
 	`
 
-	executor := r.Storage.QueryExecutor()
+	executor := r.storage.QueryExecutor()
 	row := executor.QueryRow(ctx, query, title, language, description, id)
 
 	var channel model.Channel
 	if err := row.Scan(&channel.Id, &channel.Title, &channel.Language, &channel.Description); err != nil {
 		if err == pgx.ErrNoRows {
-			return model.Channel{}, fmt.Errorf("no channel found with id=%d", id)
+			return model.Channel{}, ErrChannelNotFound
 		}
 
 		return model.Channel{}, fmt.Errorf("failed to update channel with id=%d: %w", id, err)

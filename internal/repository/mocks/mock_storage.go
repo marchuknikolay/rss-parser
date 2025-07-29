@@ -9,10 +9,10 @@ type MockStorage struct {
 	ExecExecutorFunc  storage.CommandExecutor
 }
 
-func (m *MockStorage) QueryExecutor() storage.RowQueryer {
+func (m MockStorage) QueryExecutor() storage.RowQueryer {
 	return m.QueryExecutorFunc
 }
 
-func (m *MockStorage) ExecExecutor() storage.CommandExecutor {
+func (m MockStorage) ExecExecutor() storage.CommandExecutor {
 	return m.ExecExecutorFunc
 }

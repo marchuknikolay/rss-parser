@@ -11,10 +11,10 @@ type MockRows struct {
 	ScanFunc func(dest ...any) error
 }
 
-func (*MockRows) Close() {
+func (MockRows) Close() {
 }
 
-func (m *MockRows) Err() error {
+func (m MockRows) Err() error {
 	if m.ErrFunc != nil {
 		return m.ErrFunc()
 	}
@@ -22,15 +22,15 @@ func (m *MockRows) Err() error {
 	return nil
 }
 
-func (m *MockRows) CommandTag() pgconn.CommandTag {
+func (m MockRows) CommandTag() pgconn.CommandTag {
 	return pgconn.CommandTag{}
 }
 
-func (m *MockRows) FieldDescriptions() []pgconn.FieldDescription {
+func (m MockRows) FieldDescriptions() []pgconn.FieldDescription {
 	return nil
 }
 
-func (m *MockRows) Next() bool {
+func (m MockRows) Next() bool {
 	if m.NextFunc != nil {
 		return m.NextFunc()
 	}
@@ -38,22 +38,22 @@ func (m *MockRows) Next() bool {
 	return false
 }
 
-func (m *MockRows) Scan(dest ...any) error {
+func (m MockRows) Scan(dest ...any) error {
 	if m.ScanFunc != nil {
 		return m.ScanFunc(dest...)
 	}
 
+	return ErrNotImplemented
+}
+
+func (m MockRows) Values() ([]any, error) {
+	return nil, ErrNotImplemented
+}
+
+func (m MockRows) RawValues() [][]byte {
 	return nil
 }
 
-func (m *MockRows) Values() ([]any, error) {
-	return nil, nil
-}
-
-func (m *MockRows) RawValues() [][]byte {
-	return nil
-}
-
-func (m *MockRows) Conn() *pgx.Conn {
+func (m MockRows) Conn() *pgx.Conn {
 	return nil
 }

@@ -11,10 +11,22 @@ type MockRowQueryer struct {
 	QueryFunc    func(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 }
 
-func (m *MockRowQueryer) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
-	return m.QueryRowFunc(ctx, sql, args...)
+func (m MockRowQueryer) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+	if m.QueryRowFunc != nil {
+		return m.QueryRowFunc(ctx, sql, args...)
+	}
+
+	return &MockRow{
+		ScanFunc: func(dest ...any) error {
+			return ErrNotImplemented
+		},
+	}
 }
 
-func (m *MockRowQueryer) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
-	return m.QueryFunc(ctx, sql, args...)
+func (m MockRowQueryer) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+	if m.QueryFunc != nil {
+		return m.QueryFunc(ctx, sql, args...)
+	}
+
+	return nil, ErrNotImplemented
 }

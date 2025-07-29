@@ -16,13 +16,20 @@ import (
 )
 
 type Service struct {
+	fetcher           fetcher.Interface
 	storage           *storage.Storage
 	channelRepository *repository.ChannelRepository
 	itemRepository    *repository.ItemRepository
 }
 
-func New(channelRepo *repository.ChannelRepository, itemRepo *repository.ItemRepository, storage *storage.Storage) *Service {
+func New(
+	f fetcher.Interface,
+	channelRepo *repository.ChannelRepository,
+	itemRepo *repository.ItemRepository,
+	storage *storage.Storage,
+) *Service {
 	return &Service{
+		fetcher:           f,
 		channelRepository: channelRepo,
 		itemRepository:    itemRepo,
 		storage:           storage,
@@ -76,7 +83,7 @@ func (s *Service) ImportFeeds(ctx context.Context, urls []string) error {
 }
 
 func (s *Service) ImportFeed(ctx context.Context, url string) error {
-	bs, err := fetcher.Fetch(url)
+	bs, err := s.fetcher.Fetch(url)
 	if err != nil {
 		return err
 	}

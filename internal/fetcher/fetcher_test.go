@@ -18,14 +18,14 @@ func TestFetch_Success(t *testing.T) {
 	}))
 	defer server.Close()
 
-	bs, err := Fetch(server.URL)
+	bs, err := Fetcher{}.Fetch(server.URL)
 
 	require.NoError(t, err)
 	require.Equal(t, content, string(bs))
 }
 
 func TestFetch_NetworkError(t *testing.T) {
-	_, err := Fetch("https://invalid.url")
+	_, err := Fetcher{}.Fetch("https://invalid.url")
 
 	require.Error(t, err)
 }
@@ -36,7 +36,7 @@ func TestFetch_StatusNotOK(t *testing.T) {
 	}))
 	defer server.Close()
 
-	bs, err := Fetch(server.URL)
+	bs, err := Fetcher{}.Fetch(server.URL)
 
 	require.Nil(t, bs)
 	require.Error(t, err)

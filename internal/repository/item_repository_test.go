@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/marchuknikolay/rss-parser/internal/model"
-	mock "github.com/marchuknikolay/rss-parser/internal/repository/mocks"
+	"github.com/marchuknikolay/rss-parser/internal/repository/mock"
 	"github.com/stretchr/testify/require"
 )
 

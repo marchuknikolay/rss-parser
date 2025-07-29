@@ -1,6 +1,6 @@
 package mock
 
-import "github.com/marchuknikolay/rss-parser/internal/mockutils"
+import "github.com/marchuknikolay/rss-parser/internal/utils/mock"
 
 type MockRow struct {
 	ScanFunc func(dest ...any) error
@@ -11,5 +11,5 @@ func (m MockRow) Scan(dest ...any) error {
 		return m.ScanFunc(dest...)
 	}
 
-	return mockutils.ErrNotImplemented
+	return mock.ErrNotImplemented
 }

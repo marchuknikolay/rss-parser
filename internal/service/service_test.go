@@ -413,3 +413,131 @@ func TestService_GetChannelById(t *testing.T) {
 		require.Error(t, err)
 	})
 }
+
+func TestService_DeleteChannel(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		mockStorage := repomock.MockStorage{
+			WithTransactionFunc: func(context.Context, func(storage.Interface) error) error {
+				return nil
+			},
+		}
+
+		service := New(
+			nil,
+			nil,
+			mockStorage,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			&servicemock.MockItemRepositoryFactory{Repo: nil},
+		)
+
+		err := service.DeleteChannel(context.Background(), 1)
+
+		require.NoError(t, err)
+	})
+
+	t.Run("GetItemsByChannelIdFailed", func(t *testing.T) {
+		mockStorage := repomock.MockStorage{
+			WithTransactionFunc: func(ctx context.Context, fn func(storage.Interface) error) error {
+				return fn(nil)
+			},
+		}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetByChannelIdFunc: func(context.Context, int) ([]model.Item, error) {
+				return nil, errors.New("Getting items by channel id failed")
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			mockStorage,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		err := service.DeleteChannel(context.Background(), 1)
+
+		require.Error(t, err)
+	})
+
+	t.Run("DeletingItemFailed", func(t *testing.T) {
+		mockStorage := repomock.MockStorage{
+			WithTransactionFunc: func(ctx context.Context, fn func(storage.Interface) error) error {
+				return fn(nil)
+			},
+		}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetByChannelIdFunc: func(context.Context, int) ([]model.Item, error) {
+				return []model.Item{utils.CreateItemWithId(1)}, nil
+			},
+			DeleteFunc: func(context.Context, int) error {
+				return errors.New("Deleting item failed")
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			mockStorage,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		err := service.DeleteChannel(context.Background(), 1)
+
+		require.Error(t, err)
+	})
+
+	t.Run("DeletingChannelFailed", func(t *testing.T) {
+		mockStorage := repomock.MockStorage{
+			WithTransactionFunc: func(ctx context.Context, fn func(storage.Interface) error) error {
+				return fn(nil)
+			},
+		}
+
+		mockChannelRepo := &servicemock.MockChannelRepository{
+			DeleteFunc: func(context.Context, int) error {
+				return errors.New("Deleting channel failed")
+			},
+		}
+
+		mockChannelFactory := &servicemock.MockChannelRepositoryFactory{
+			Repo: mockChannelRepo,
+		}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetByChannelIdFunc: func(context.Context, int) ([]model.Item, error) {
+				return []model.Item{utils.CreateItemWithId(1)}, nil
+			},
+			DeleteFunc: func(context.Context, int) error {
+				return nil
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			mockStorage,
+			mockChannelFactory,
+			mockItemFactory,
+		)
+
+		err := service.DeleteChannel(context.Background(), 1)
+
+		require.Error(t, err)
+	})
+}

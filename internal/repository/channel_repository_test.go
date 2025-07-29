@@ -100,6 +100,33 @@ func TestChannelRepository_GetAllFailQuery(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestChannelRepository_GetAllFailScan(t *testing.T) {
+	mockRows := &mock.MockRows{
+		ErrFunc:  func() error { return nil },
+		NextFunc: func() bool { return true },
+		ScanFunc: func(dest ...any) error {
+			return errors.New("Scanning failed")
+		},
+	}
+
+	mockRowQueryer := &mock.MockRowQueryer{
+		QueryFunc: func(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+			return mockRows, nil
+		},
+	}
+
+	mockStorage := &mock.MockStorage{
+		QueryExecutorFunc: mockRowQueryer,
+	}
+
+	repo := NewChannelRepository(mockStorage)
+
+	actual, err := repo.GetAll(context.Background())
+
+	require.Nil(t, actual)
+	require.Error(t, err)
+}
+
 func TestChannelRepository_GetAllIterationError(t *testing.T) {
 	mockRows := &mock.MockRows{
 		ErrFunc:  func() error { return errors.New("Iteration error") },

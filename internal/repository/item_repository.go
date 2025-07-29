@@ -14,10 +14,10 @@ import (
 var ErrItemNotFound = errors.New("item not found")
 
 type ItemRepository struct {
-	storage *storage.Storage
+	storage storage.Interface
 }
 
-func NewItemRepository(st *storage.Storage) *ItemRepository {
+func NewItemRepository(st storage.Interface) *ItemRepository {
 	return &ItemRepository{storage: st}
 }
 

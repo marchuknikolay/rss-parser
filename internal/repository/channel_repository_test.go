@@ -22,9 +22,7 @@ func TestChannelRepository_SaveSuccess(t *testing.T) {
 		return nil
 	})
 
-	channel := createChannelWithId(expected)
-
-	actual, err := repo.Save(context.Background(), channel)
+	actual, err := repo.Save(context.Background(), createChannelWithId(expected))
 
 	require.Equal(t, expected, actual)
 	require.NoError(t, err)
@@ -37,9 +35,7 @@ func TestChannelRepository_SaveFail(t *testing.T) {
 		return errors.New("Saving failed")
 	})
 
-	channel := createChannelWithId(1)
-
-	actual, err := repo.Save(context.Background(), channel)
+	actual, err := repo.Save(context.Background(), createChannelWithId(1))
 
 	require.Equal(t, expected, actual)
 	require.Error(t, err)

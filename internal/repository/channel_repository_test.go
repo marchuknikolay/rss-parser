@@ -13,6 +13,38 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestChannelRepository_SaveSuccess(t *testing.T) {
+	expected := 1
+
+	repo := setupMockRepo(func(dest ...any) error {
+		*(dest[0].(*int)) = expected
+
+		return nil
+	})
+
+	channel := createChannelWithId(1)
+
+	actual, err := repo.Save(context.Background(), channel)
+
+	require.Equal(t, expected, actual)
+	require.NoError(t, err)
+}
+
+func TestChannelRepository_SaveFail(t *testing.T) {
+	expected := 0
+
+	repo := setupMockRepo(func(dest ...any) error {
+		return errors.New("Saving failed")
+	})
+
+	channel := createChannelWithId(1)
+
+	actual, err := repo.Save(context.Background(), channel)
+
+	require.Equal(t, expected, actual)
+	require.Error(t, err)
+}
+
 func TestChannelRepository_GetAllSuccess(t *testing.T) {
 	expected := []model.Channel{
 		createChannelWithId(1),
@@ -93,38 +125,6 @@ func TestChannelRepository_GetAllIterationError(t *testing.T) {
 	actual, err := repo.GetAll(context.Background())
 
 	require.Nil(t, actual)
-	require.Error(t, err)
-}
-
-func TestChannelRepository_SaveSuccess(t *testing.T) {
-	expected := 1
-
-	repo := setupMockRepo(func(dest ...any) error {
-		*(dest[0].(*int)) = expected
-
-		return nil
-	})
-
-	channel := createChannelWithId(1)
-
-	actual, err := repo.Save(context.Background(), channel)
-
-	require.Equal(t, expected, actual)
-	require.NoError(t, err)
-}
-
-func TestChannelRepository_SaveFail(t *testing.T) {
-	expected := 0
-
-	repo := setupMockRepo(func(dest ...any) error {
-		return errors.New("Saving failed")
-	})
-
-	channel := createChannelWithId(1)
-
-	actual, err := repo.Save(context.Background(), channel)
-
-	require.Equal(t, expected, actual)
 	require.Error(t, err)
 }
 

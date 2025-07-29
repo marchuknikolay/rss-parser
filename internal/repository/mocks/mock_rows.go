@@ -3,6 +3,7 @@ package mock
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/marchuknikolay/rss-parser/internal/mockutils"
 )
 
 type MockRows struct {
@@ -43,11 +44,11 @@ func (m MockRows) Scan(dest ...any) error {
 		return m.ScanFunc(dest...)
 	}
 
-	return ErrNotImplemented
+	return mockutils.ErrNotImplemented
 }
 
 func (m MockRows) Values() ([]any, error) {
-	return nil, ErrNotImplemented
+	return nil, mockutils.ErrNotImplemented
 }
 
 func (m MockRows) RawValues() [][]byte {

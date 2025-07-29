@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/marchuknikolay/rss-parser/internal/mockutils"
 )
 
 type MockRowQueryer struct {
@@ -18,7 +19,7 @@ func (m MockRowQueryer) QueryRow(ctx context.Context, sql string, args ...any) p
 
 	return &MockRow{
 		ScanFunc: func(dest ...any) error {
-			return ErrNotImplemented
+			return mockutils.ErrNotImplemented
 		},
 	}
 }
@@ -28,5 +29,5 @@ func (m MockRowQueryer) Query(ctx context.Context, sql string, args ...any) (pgx
 		return m.QueryFunc(ctx, sql, args...)
 	}
 
-	return nil, ErrNotImplemented
+	return nil, mockutils.ErrNotImplemented
 }

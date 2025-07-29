@@ -17,6 +17,7 @@ import (
 
 type Service struct {
 	fetcher           fetcher.Interface
+	parser            parser.Parser
 	storage           *storage.Storage
 	channelRepository *repository.ChannelRepository
 	itemRepository    *repository.ItemRepository
@@ -24,12 +25,14 @@ type Service struct {
 
 func New(
 	f fetcher.Interface,
+	p parser.Parser,
 	channelRepo *repository.ChannelRepository,
 	itemRepo *repository.ItemRepository,
 	storage *storage.Storage,
 ) *Service {
 	return &Service{
 		fetcher:           f,
+		parser:            p,
 		channelRepository: channelRepo,
 		itemRepository:    itemRepo,
 		storage:           storage,
@@ -88,7 +91,7 @@ func (s *Service) ImportFeed(ctx context.Context, url string) error {
 		return err
 	}
 
-	rss, err := parser.Parse(bs)
+	rss, err := s.parser.Parse(bs)
 	if err != nil {
 		return err
 	}

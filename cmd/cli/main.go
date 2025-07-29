@@ -10,6 +10,7 @@ import (
 
 	"github.com/marchuknikolay/rss-parser/internal/config"
 	"github.com/marchuknikolay/rss-parser/internal/fetcher"
+	"github.com/marchuknikolay/rss-parser/internal/parser"
 	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/server"
 	"github.com/marchuknikolay/rss-parser/internal/server/handlers"
@@ -34,7 +35,7 @@ func main() {
 	channelRepository := repository.NewChannelRepository(storage)
 	itemRepository := repository.NewItemRepository(storage)
 
-	service := service.New(fetcher.Fetcher{}, channelRepository, itemRepository, storage)
+	service := service.New(fetcher.Fetcher{}, parser.Parser{}, channelRepository, itemRepository, storage)
 
 	echo, err := handlers.New(service).InitRoutes()
 	if err != nil {

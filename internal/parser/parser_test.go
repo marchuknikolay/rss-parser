@@ -44,7 +44,7 @@ func TestParse_Success(t *testing.T) {
 			</channel>
 		</rss>`)
 
-	rss, err := Parse(xmlData)
+	rss, err := Parser{}.Parse(xmlData)
 
 	require.NoError(t, err)
 
@@ -82,7 +82,7 @@ func TestParse_Success(t *testing.T) {
 func TestParse_InvalidXml(t *testing.T) {
 	invalidXml := []byte(`<rss><channel><title>Invalid`)
 
-	rss, err := Parse(invalidXml)
+	rss, err := Parser{}.Parse(invalidXml)
 
 	require.Empty(t, rss.Channels)
 	require.Error(t, err)

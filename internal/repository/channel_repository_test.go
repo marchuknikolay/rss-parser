@@ -22,7 +22,7 @@ func TestChannelRepository_SaveSuccess(t *testing.T) {
 		return nil
 	})
 
-	channel := createChannelWithId(1)
+	channel := createChannelWithId(expected)
 
 	actual, err := repo.Save(context.Background(), channel)
 

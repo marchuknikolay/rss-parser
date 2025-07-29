@@ -9,7 +9,7 @@ type MockParser struct {
 	ParseFunc func([]byte) (model.Rss, error)
 }
 
-func (m MockParser) Parser(bs []byte) (model.Rss, error) {
+func (m MockParser) Parse(bs []byte) (model.Rss, error) {
 	if m.ParseFunc != nil {
 		return m.ParseFunc(bs)
 	}

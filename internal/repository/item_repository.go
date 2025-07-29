@@ -13,12 +13,17 @@ import (
 
 var ErrItemNotFound = errors.New("item not found")
 
-type ItemRepository struct {
-	storage storage.Interface
+type ItemRepositoryInterface interface {
+	Save(ctx context.Context, item model.Item, channelId int) error
+	GetAll(ctx context.Context) ([]model.Item, error)
+	GetByChannelId(ctx context.Context, channelId int) ([]model.Item, error)
+	GetById(ctx context.Context, itemId int) (model.Item, error)
+	Delete(ctx context.Context, id int) error
+	Update(ctx context.Context, id int, title, description string, pubTime time.Time) (model.Item, error)
 }
 
-func NewItemRepository(st storage.Interface) *ItemRepository {
-	return &ItemRepository{storage: st}
+type ItemRepository struct {
+	storage storage.Interface
 }
 
 func (r *ItemRepository) Save(ctx context.Context, item model.Item, channelId int) error {

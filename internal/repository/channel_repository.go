@@ -12,12 +12,16 @@ import (
 
 var ErrChannelNotFound = errors.New("channel not found")
 
-type ChannelRepository struct {
-	storage storage.Interface
+type ChannelRepositoryInterface interface {
+	Save(ctx context.Context, channel model.Channel) (int, error)
+	GetAll(ctx context.Context) ([]model.Channel, error)
+	GetById(ctx context.Context, id int) (model.Channel, error)
+	Delete(ctx context.Context, id int) error
+	Update(ctx context.Context, id int, title, language, description string) (model.Channel, error)
 }
 
-func NewChannelRepository(st storage.Interface) *ChannelRepository {
-	return &ChannelRepository{storage: st}
+type ChannelRepository struct {
+	storage storage.Interface
 }
 
 func (r *ChannelRepository) Save(ctx context.Context, channel model.Channel) (int, error) {

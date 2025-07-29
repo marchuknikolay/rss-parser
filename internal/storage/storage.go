@@ -20,6 +20,9 @@ type CommandExecutor interface {
 type Interface interface {
 	QueryExecutor() RowQueryer
 	ExecExecutor() CommandExecutor
+
+	WithTransaction(ctx context.Context, fn func(txStorage Interface) error) error
+	Close()
 }
 
 type Storage struct {
@@ -27,7 +30,7 @@ type Storage struct {
 	Tx   pgx.Tx
 }
 
-func New(connString string) (*Storage, error) {
+func New(connString string) (Interface, error) {
 	pool, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		return nil, err
@@ -40,14 +43,14 @@ func (s *Storage) Close() {
 	s.Pool.Close()
 }
 
-func (s *Storage) WithTx(tx pgx.Tx) *Storage {
+func (s *Storage) WithTx(tx pgx.Tx) Interface {
 	return &Storage{
 		Pool: s.Pool,
 		Tx:   tx,
 	}
 }
 
-func (s *Storage) WithTransaction(ctx context.Context, fn func(*Storage) error) error {
+func (s *Storage) WithTransaction(ctx context.Context, fn func(Interface) error) error {
 	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
 		return err

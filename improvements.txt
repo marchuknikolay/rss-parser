@@ -1,4 +1,8 @@
 Improvements:
+- refactor tests to use t.Run()
+- tests for utils/test
+- benchmark for ImportFeeds
+- linters
 - Add interfaces into router related to db
 - Review errors
 - Add tests

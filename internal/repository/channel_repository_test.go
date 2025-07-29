@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/repository/mock"
+	utils "github.com/marchuknikolay/rss-parser/internal/utils/test"
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,7 +23,7 @@ func TestChannelRepository_SaveSuccess(t *testing.T) {
 		return nil
 	})
 
-	actual, err := repo.Save(context.Background(), createChannelWithId(expected))
+	actual, err := repo.Save(context.Background(), utils.CreateChannelWithId(expected))
 
 	require.Equal(t, expected, actual)
 	require.NoError(t, err)
@@ -35,7 +36,7 @@ func TestChannelRepository_SaveFail(t *testing.T) {
 		return errors.New("Saving failed")
 	})
 
-	actual, err := repo.Save(context.Background(), createChannelWithId(1))
+	actual, err := repo.Save(context.Background(), utils.CreateChannelWithId(1))
 
 	require.Equal(t, expected, actual)
 	require.Error(t, err)
@@ -43,8 +44,8 @@ func TestChannelRepository_SaveFail(t *testing.T) {
 
 func TestChannelRepository_GetAllSuccess(t *testing.T) {
 	expected := []model.Channel{
-		createChannelWithId(1),
-		createChannelWithId(2),
+		utils.CreateChannelWithId(1),
+		utils.CreateChannelWithId(2),
 	}
 
 	i := 0
@@ -73,7 +74,7 @@ func TestChannelRepository_GetAllSuccess(t *testing.T) {
 		QueryExecutorFunc: mockRowQueryer,
 	}
 
-	repo := NewChannelRepository(mockStorage)
+	repo := ChannelRepositoryFactory{}.New(mockStorage)
 
 	actual, err := repo.GetAll(context.Background())
 
@@ -92,7 +93,7 @@ func TestChannelRepository_GetAllFailQuery(t *testing.T) {
 		QueryExecutorFunc: mockRowQueryer,
 	}
 
-	repo := NewChannelRepository(mockStorage)
+	repo := ChannelRepositoryFactory{}.New(mockStorage)
 
 	actual, err := repo.GetAll(context.Background())
 
@@ -119,7 +120,7 @@ func TestChannelRepository_GetAllFailScan(t *testing.T) {
 		QueryExecutorFunc: mockRowQueryer,
 	}
 
-	repo := NewChannelRepository(mockStorage)
+	repo := ChannelRepositoryFactory{}.New(mockStorage)
 
 	actual, err := repo.GetAll(context.Background())
 
@@ -143,7 +144,7 @@ func TestChannelRepository_GetAllIterationError(t *testing.T) {
 		QueryExecutorFunc: mockRowQueryer,
 	}
 
-	repo := NewChannelRepository(mockStorage)
+	repo := ChannelRepositoryFactory{}.New(mockStorage)
 
 	actual, err := repo.GetAll(context.Background())
 
@@ -152,7 +153,7 @@ func TestChannelRepository_GetAllIterationError(t *testing.T) {
 }
 
 func TestChannelRepository_GetByIdSuccess(t *testing.T) {
-	expected := createChannelWithId(1)
+	expected := utils.CreateChannelWithId(1)
 
 	repo := setupMockChannelRepository(func(dest ...any) error {
 		*(dest[0].(*int)) = expected.Id
@@ -204,7 +205,7 @@ func TestChannelRepository_DeleteSuccess(t *testing.T) {
 		ExecExecutorFunc: mockCommandExecutor,
 	}
 
-	repo := NewChannelRepository(mockStorage)
+	repo := ChannelRepositoryFactory{}.New(mockStorage)
 
 	err := repo.Delete(context.Background(), id)
 
@@ -222,7 +223,7 @@ func TestChannelRepository_DeleteFailExec(t *testing.T) {
 		ExecExecutorFunc: mockCommandExecutor,
 	}
 
-	repo := NewChannelRepository(mockStorage)
+	repo := ChannelRepositoryFactory{}.New(mockStorage)
 
 	err := repo.Delete(context.Background(), 1)
 
@@ -240,7 +241,7 @@ func TestChannelRepository_DeleteNotFound(t *testing.T) {
 		ExecExecutorFunc: mockCommandExecutor,
 	}
 
-	repo := NewChannelRepository(mockStorage)
+	repo := ChannelRepositoryFactory{}.New(mockStorage)
 
 	err := repo.Delete(context.Background(), 1)
 
@@ -248,7 +249,7 @@ func TestChannelRepository_DeleteNotFound(t *testing.T) {
 }
 
 func TestChannelRepository_UpdateSuccess(t *testing.T) {
-	expected := createChannelWithId(1)
+	expected := utils.CreateChannelWithId(1)
 
 	repo := setupMockChannelRepository(func(dest ...any) error {
 		*(dest[0].(*int)) = expected.Id
@@ -272,7 +273,7 @@ func TestChannelRepository_UpdateSuccess(t *testing.T) {
 }
 
 func TestChannelRepository_UpdateNotFound(t *testing.T) {
-	channel := createChannelWithId(1)
+	channel := utils.CreateChannelWithId(1)
 
 	repo := setupMockChannelRepository(func(dest ...any) error {
 		return pgx.ErrNoRows
@@ -291,7 +292,7 @@ func TestChannelRepository_UpdateNotFound(t *testing.T) {
 }
 
 func TestChannelRepository_UpdateFailScan(t *testing.T) {
-	channel := createChannelWithId(1)
+	channel := utils.CreateChannelWithId(1)
 
 	repo := setupMockChannelRepository(func(dest ...any) error {
 		return errors.New("Scanning failed")
@@ -309,16 +310,7 @@ func TestChannelRepository_UpdateFailScan(t *testing.T) {
 	require.Error(t, err)
 }
 
-func createChannelWithId(id int) model.Channel {
-	return model.Channel{
-		Id:          id,
-		Title:       fmt.Sprintf("Channel %v", id),
-		Language:    "en",
-		Description: fmt.Sprintf("Channel %v description", id),
-	}
-}
-
-func setupMockChannelRepository(scanFunc func(dest ...any) error) *ChannelRepository {
+func setupMockChannelRepository(scanFunc func(dest ...any) error) ChannelRepositoryInterface {
 	mockRow := &mock.MockRow{
 		ScanFunc: scanFunc,
 	}
@@ -333,5 +325,5 @@ func setupMockChannelRepository(scanFunc func(dest ...any) error) *ChannelReposi
 		QueryExecutorFunc: mockRowQueryer,
 	}
 
-	return NewChannelRepository(mockStorage)
+	return ChannelRepositoryFactory{}.New(mockStorage)
 }

@@ -32,10 +32,12 @@ func main() {
 		log.Fatalf("Failed creating a new database connection: %v", err)
 	}
 
-	channelRepository := repository.NewChannelRepository(storage)
-	itemRepository := repository.NewItemRepository(storage)
-
-	service := service.New(fetcher.Fetcher{}, parser.Parser{}, channelRepository, itemRepository, storage)
+	service := service.New(
+		fetcher.Fetcher{},
+		parser.Parser{},
+		storage,
+		repository.ChannelRepositoryFactory{},
+		repository.ItemRepositoryFactory{})
 
 	echo, err := handlers.New(service).InitRoutes()
 	if err != nil {

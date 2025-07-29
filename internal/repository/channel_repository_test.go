@@ -16,7 +16,7 @@ import (
 func TestChannelRepository_SaveSuccess(t *testing.T) {
 	expected := 1
 
-	repo := setupMockRepo(func(dest ...any) error {
+	repo := setupMockChannelRepository(func(dest ...any) error {
 		*(dest[0].(*int)) = expected
 
 		return nil
@@ -33,7 +33,7 @@ func TestChannelRepository_SaveSuccess(t *testing.T) {
 func TestChannelRepository_SaveFail(t *testing.T) {
 	expected := 0
 
-	repo := setupMockRepo(func(dest ...any) error {
+	repo := setupMockChannelRepository(func(dest ...any) error {
 		return errors.New("Saving failed")
 	})
 
@@ -131,7 +131,7 @@ func TestChannelRepository_GetAllIterationError(t *testing.T) {
 func TestChannelRepository_GetByIdSuccess(t *testing.T) {
 	expected := createChannelWithId(1)
 
-	repo := setupMockRepo(func(dest ...any) error {
+	repo := setupMockChannelRepository(func(dest ...any) error {
 		*(dest[0].(*int)) = expected.Id
 		*(dest[1].(*string)) = expected.Title
 		*(dest[2].(*string)) = expected.Language
@@ -147,7 +147,7 @@ func TestChannelRepository_GetByIdSuccess(t *testing.T) {
 }
 
 func TestChannelRepository_GetByIdNotFound(t *testing.T) {
-	repo := setupMockRepo(func(dest ...any) error {
+	repo := setupMockChannelRepository(func(dest ...any) error {
 		return pgx.ErrNoRows
 	})
 
@@ -158,7 +158,7 @@ func TestChannelRepository_GetByIdNotFound(t *testing.T) {
 }
 
 func TestChannelRepository_GetByIdFailScan(t *testing.T) {
-	repo := setupMockRepo(func(dest ...any) error {
+	repo := setupMockChannelRepository(func(dest ...any) error {
 		return errors.New("Scanning failed")
 	})
 
@@ -227,7 +227,7 @@ func TestChannelRepository_DeleteNotFound(t *testing.T) {
 func TestChannelRepository_UpdateSuccess(t *testing.T) {
 	expected := createChannelWithId(1)
 
-	repo := setupMockRepo(func(dest ...any) error {
+	repo := setupMockChannelRepository(func(dest ...any) error {
 		*(dest[0].(*int)) = expected.Id
 		*(dest[1].(*string)) = expected.Title
 		*(dest[2].(*string)) = expected.Language
@@ -251,7 +251,7 @@ func TestChannelRepository_UpdateSuccess(t *testing.T) {
 func TestChannelRepository_UpdateNotFound(t *testing.T) {
 	channel := createChannelWithId(1)
 
-	repo := setupMockRepo(func(dest ...any) error {
+	repo := setupMockChannelRepository(func(dest ...any) error {
 		return pgx.ErrNoRows
 	})
 
@@ -270,7 +270,7 @@ func TestChannelRepository_UpdateNotFound(t *testing.T) {
 func TestChannelRepository_UpdateFailScan(t *testing.T) {
 	channel := createChannelWithId(1)
 
-	repo := setupMockRepo(func(dest ...any) error {
+	repo := setupMockChannelRepository(func(dest ...any) error {
 		return errors.New("Scanning failed")
 	})
 
@@ -295,7 +295,7 @@ func createChannelWithId(id int) model.Channel {
 	}
 }
 
-func setupMockRepo(scanFunc func(dest ...any) error) *ChannelRepository {
+func setupMockChannelRepository(scanFunc func(dest ...any) error) *ChannelRepository {
 	mockRow := &mock.MockRow{
 		ScanFunc: scanFunc,
 	}

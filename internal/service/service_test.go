@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	repomock "github.com/marchuknikolay/rss-parser/internal/repository/mock"
@@ -138,17 +139,37 @@ func TestService_ImportFeed(t *testing.T) {
 		}
 
 		mockStorage := repomock.MockStorage{
-			WithTransactionFunc: func(context.Context, func(storage.Interface) error) error {
+			WithTransactionFunc: func(ctx context.Context, fn func(storage.Interface) error) error {
+				return fn(nil)
+			},
+		}
+
+		mockChannelRepo := &servicemock.MockChannelRepository{
+			SaveFunc: func(context.Context, model.Channel) (int, error) {
+				return 1, nil
+			},
+		}
+
+		mockChannelFactory := &servicemock.MockChannelRepositoryFactory{
+			Repo: mockChannelRepo,
+		}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			SaveFunc: func(context.Context, model.Item, int) error {
 				return nil
 			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
 		}
 
 		service := New(
 			mockFetcher,
 			mockParser,
 			mockStorage,
-			&servicemock.MockChannelRepositoryFactory{Repo: nil},
-			&servicemock.MockItemRepositoryFactory{Repo: nil},
+			mockChannelFactory,
+			mockItemFactory,
 		)
 
 		err := service.ImportFeed(context.Background(), rssFeedUrl)
@@ -417,17 +438,40 @@ func TestService_GetChannelById(t *testing.T) {
 func TestService_DeleteChannel(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		mockStorage := repomock.MockStorage{
-			WithTransactionFunc: func(context.Context, func(storage.Interface) error) error {
+			WithTransactionFunc: func(ctx context.Context, fn func(storage.Interface) error) error {
+				return fn(nil)
+			},
+		}
+
+		mockChannelRepo := &servicemock.MockChannelRepository{
+			DeleteFunc: func(context.Context, int) error {
 				return nil
 			},
+		}
+
+		mockChannelFactory := &servicemock.MockChannelRepositoryFactory{
+			Repo: mockChannelRepo,
+		}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetByChannelIdFunc: func(context.Context, int) ([]model.Item, error) {
+				return []model.Item{utils.CreateItemWithId(1)}, nil
+			},
+			DeleteFunc: func(context.Context, int) error {
+				return nil
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
 		}
 
 		service := New(
 			nil,
 			nil,
 			mockStorage,
-			&servicemock.MockChannelRepositoryFactory{Repo: nil},
-			&servicemock.MockItemRepositoryFactory{Repo: nil},
+			mockChannelFactory,
+			mockItemFactory,
 		)
 
 		err := service.DeleteChannel(context.Background(), 1)
@@ -538,6 +582,361 @@ func TestService_DeleteChannel(t *testing.T) {
 
 		err := service.DeleteChannel(context.Background(), 1)
 
+		require.Error(t, err)
+	})
+}
+
+func TestService_UpdateChannel(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		mockChannelRepo := &servicemock.MockChannelRepository{
+			UpdateFunc: func(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
+				return model.Channel{Id: id, Title: title, Language: language, Description: description}, nil
+			},
+		}
+
+		mockChannelFactory := &servicemock.MockChannelRepositoryFactory{
+			Repo: mockChannelRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			mockChannelFactory,
+			&servicemock.MockItemRepositoryFactory{Repo: nil},
+		)
+
+		expected := utils.CreateChannelWithId(1)
+
+		actual, err := service.UpdateChannel(
+			context.Background(),
+			expected.Id,
+			expected.Title,
+			expected.Language,
+			expected.Description,
+		)
+
+		require.Equal(t, expected, actual)
+		require.NoError(t, err)
+	})
+
+	t.Run("RepositoryError", func(t *testing.T) {
+		expected := model.Channel{}
+
+		mockChannelRepo := &servicemock.MockChannelRepository{
+			UpdateFunc: func(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
+				return expected, errors.New("Updating channel failed")
+			},
+		}
+
+		mockChannelFactory := &servicemock.MockChannelRepositoryFactory{
+			Repo: mockChannelRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			mockChannelFactory,
+			&servicemock.MockItemRepositoryFactory{Repo: nil},
+		)
+
+		channel := utils.CreateChannelWithId(1)
+
+		actual, err := service.UpdateChannel(
+			context.Background(),
+			channel.Id,
+			channel.Title,
+			channel.Language,
+			channel.Description,
+		)
+
+		require.Equal(t, expected, actual)
+		require.Error(t, err)
+	})
+}
+
+func TestService_GetItems(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		expected := []model.Item{utils.CreateItemWithId(1)}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetAllFunc: func(ctx context.Context) ([]model.Item, error) {
+				return expected, nil
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		actual, err := service.GetItems(context.Background())
+
+		require.Equal(t, expected, actual)
+		require.NoError(t, err)
+	})
+
+	t.Run("RepositoryError", func(t *testing.T) {
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetAllFunc: func(ctx context.Context) ([]model.Item, error) {
+				return nil, errors.New("Getting all items failed")
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		items, err := service.GetItems(context.Background())
+
+		require.Nil(t, items)
+		require.Error(t, err)
+	})
+}
+
+func TestService_GetItemsByChannelId(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		expected := []model.Item{utils.CreateItemWithId(1)}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetByChannelIdFunc: func(ctx context.Context, channelId int) ([]model.Item, error) {
+				return expected, nil
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		actual, err := service.GetItemsByChannelId(context.Background(), 1)
+
+		require.Equal(t, expected, actual)
+		require.NoError(t, err)
+	})
+
+	t.Run("RepositoryError", func(t *testing.T) {
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetByChannelIdFunc: func(ctx context.Context, channelId int) ([]model.Item, error) {
+				return nil, errors.New("Getting items by channel id failed")
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		items, err := service.GetItemsByChannelId(context.Background(), 1)
+
+		require.Nil(t, items)
+		require.Error(t, err)
+	})
+}
+
+func TestService_GetItemById(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		id := 1
+		expected := utils.CreateItemWithId(id)
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetByIdFunc: func(ctx context.Context, id int) (model.Item, error) {
+				return expected, nil
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		actual, err := service.GetItemById(context.Background(), id)
+
+		require.Equal(t, expected, actual)
+		require.NoError(t, err)
+	})
+
+	t.Run("RepositoryError", func(t *testing.T) {
+		expected := model.Item{}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			GetByIdFunc: func(ctx context.Context, id int) (model.Item, error) {
+				return expected, errors.New("Getting item by id failed")
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		actual, err := service.GetItemById(context.Background(), 1)
+
+		require.Equal(t, expected, actual)
+		require.Error(t, err)
+	})
+}
+
+func TestService_DeleteItem(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		mockItemRepo := &servicemock.MockItemRepository{
+			DeleteFunc: func(ctx context.Context, id int) error {
+				return nil
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		err := service.DeleteItem(context.Background(), 1)
+
+		require.NoError(t, err)
+	})
+
+	t.Run("RepositoryError", func(t *testing.T) {
+		mockItemRepo := &servicemock.MockItemRepository{
+			DeleteFunc: func(ctx context.Context, id int) error {
+				return errors.New("Deleting item failed")
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		err := service.DeleteItem(context.Background(), 1)
+
+		require.Error(t, err)
+	})
+}
+
+func TestService_UpdateItem(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		mockItemRepo := &servicemock.MockItemRepository{
+			UpdateFunc: func(ctx context.Context, id int, title, description string, pubDate time.Time) (model.Item, error) {
+				return model.Item{Id: id, Title: title, Description: description, PubDate: model.DateTime(pubDate)}, nil
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		expected := utils.CreateItemWithId(1)
+
+		actual, err := service.UpdateItem(
+			context.Background(),
+			expected.Id,
+			expected.Title,
+			expected.Description,
+			time.Time(expected.PubDate),
+		)
+
+		require.Equal(t, expected, actual)
+		require.NoError(t, err)
+	})
+
+	t.Run("RepositoryError", func(t *testing.T) {
+		expected := model.Item{}
+
+		mockItemRepo := &servicemock.MockItemRepository{
+			UpdateFunc: func(ctx context.Context, id int, title, description string, pubDate time.Time) (model.Item, error) {
+				return expected, errors.New("Updating item failed")
+			},
+		}
+
+		mockItemFactory := &servicemock.MockItemRepositoryFactory{
+			Repo: mockItemRepo,
+		}
+
+		service := New(
+			nil,
+			nil,
+			nil,
+			&servicemock.MockChannelRepositoryFactory{Repo: nil},
+			mockItemFactory,
+		)
+
+		item := utils.CreateItemWithId(1)
+
+		actual, err := service.UpdateItem(
+			context.Background(),
+			item.Id,
+			item.Title,
+			item.Description,
+			time.Time(item.PubDate),
+		)
+
+		require.Equal(t, expected, actual)
 		require.Error(t, err)
 	})
 }

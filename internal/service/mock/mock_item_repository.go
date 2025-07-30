@@ -34,7 +34,7 @@ func (m *MockItemRepository) GetAll(ctx context.Context) ([]model.Item, error) {
 }
 
 func (m *MockItemRepository) GetByChannelId(ctx context.Context, channelId int) ([]model.Item, error) {
-	if m.GetByIdFunc != nil {
+	if m.GetByChannelIdFunc != nil {
 		return m.GetByChannelIdFunc(ctx, channelId)
 	}
 

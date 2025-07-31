@@ -1,6 +1,4 @@
 Improvements:
-- refactor tests to use t.Run()
-- benchmark for ImportFeeds
 - linters
 - Review errors
 - Replace error by panic when it's better

@@ -16,16 +16,35 @@ import (
 )
 
 type Service struct {
-	storage           *storage.Storage
-	channelRepository *repository.ChannelRepository
-	itemRepository    *repository.ItemRepository
+	fetcher fetcher.Interface
+	parser  parser.Interface
+
+	storage storage.Interface
+
+	// Factories for transactional calls
+	channelRepositoryFactory repository.ChannelRepositoryFactoryInterface
+	itemRepositoryFactory    repository.ItemRepositoryFactoryInterface
+
+	// Repositories for simple calls
+	channelRepository repository.ChannelRepositoryInterface
+	itemRepository    repository.ItemRepositoryInterface
 }
 
-func New(channelRepo *repository.ChannelRepository, itemRepo *repository.ItemRepository, storage *storage.Storage) *Service {
+func New(
+	f fetcher.Interface,
+	p parser.Interface,
+	st storage.Interface,
+	channelRepoFactory repository.ChannelRepositoryFactoryInterface,
+	itemRepoFactory repository.ItemRepositoryFactoryInterface,
+) *Service {
 	return &Service{
-		channelRepository: channelRepo,
-		itemRepository:    itemRepo,
-		storage:           storage,
+		fetcher:                  f,
+		parser:                   p,
+		storage:                  st,
+		channelRepositoryFactory: channelRepoFactory,
+		itemRepositoryFactory:    itemRepoFactory,
+		channelRepository:        channelRepoFactory.New(st),
+		itemRepository:           itemRepoFactory.New(st),
 	}
 }
 
@@ -76,12 +95,12 @@ func (s *Service) ImportFeeds(ctx context.Context, urls []string) error {
 }
 
 func (s *Service) ImportFeed(ctx context.Context, url string) error {
-	bs, err := fetcher.Fetch(url)
+	bs, err := s.fetcher.Fetch(url)
 	if err != nil {
 		return err
 	}
 
-	rss, err := parser.Parse(bs)
+	rss, err := s.parser.Parse(bs)
 	if err != nil {
 		return err
 	}
@@ -98,12 +117,12 @@ func (s *Service) GetChannelById(ctx context.Context, id int) (model.Channel, er
 }
 
 func (s *Service) DeleteChannel(ctx context.Context, id int) error {
-	return s.storage.WithTransaction(ctx, func(txStorage *storage.Storage) error {
+	return s.storage.WithTransaction(ctx, func(txStorage storage.Interface) error {
 		// Create new repositories with the transaction storage.
 		// It prevents race conditions that can occur when multiple goroutines
 		// try to access the same repository concurrently.
-		channelRepository := repository.NewChannelRepository(txStorage)
-		itemRepository := repository.NewItemRepository(txStorage)
+		channelRepository := s.channelRepositoryFactory.New(txStorage)
+		itemRepository := s.itemRepositoryFactory.New(txStorage)
 
 		items, err := itemRepository.GetByChannelId(ctx, id)
 		if err != nil {
@@ -149,12 +168,12 @@ func (s *Service) UpdateItem(ctx context.Context, itemId int, title, description
 }
 
 func (s *Service) saveChannels(ctx context.Context, channels []model.Channel) error {
-	return s.storage.WithTransaction(ctx, func(txStorage *storage.Storage) error {
+	return s.storage.WithTransaction(ctx, func(txStorage storage.Interface) error {
 		// Create new repositories with the transaction storage.
 		// It prevents race conditions that can occur when multiple goroutines
 		// try to access the same repository concurrently.
-		channelRepository := repository.NewChannelRepository(txStorage)
-		itemRepository := repository.NewItemRepository(txStorage)
+		channelRepository := s.channelRepositoryFactory.New(txStorage)
+		itemRepository := s.itemRepositoryFactory.New(txStorage)
 
 		for _, channel := range channels {
 			channelId, err := channelRepository.Save(ctx, channel)

@@ -13,18 +13,23 @@ import (
 
 var ErrItemNotFound = errors.New("item not found")
 
-type ItemRepository struct {
-	storage *storage.Storage
+type ItemRepositoryInterface interface {
+	Save(ctx context.Context, item model.Item, channelId int) error
+	GetAll(ctx context.Context) ([]model.Item, error)
+	GetByChannelId(ctx context.Context, channelId int) ([]model.Item, error)
+	GetById(ctx context.Context, itemId int) (model.Item, error)
+	Delete(ctx context.Context, id int) error
+	Update(ctx context.Context, id int, title, description string, pubTime time.Time) (model.Item, error)
 }
 
-func NewItemRepository(st *storage.Storage) *ItemRepository {
-	return &ItemRepository{storage: st}
+type ItemRepository struct {
+	storage.Interface
 }
 
 func (r *ItemRepository) Save(ctx context.Context, item model.Item, channelId int) error {
 	query := "INSERT INTO items (title, description, pub_date, channel_id) VALUES ($1, $2, $3, $4)"
 
-	executor := r.storage.ExecExecutor()
+	executor := r.ExecExecutor()
 	_, err := executor.Exec(ctx, query, item.Title, item.Description, time.Time(item.PubDate), channelId)
 
 	return err
@@ -43,7 +48,7 @@ func (r *ItemRepository) GetByChannelId(ctx context.Context, channelId int) ([]m
 func (r *ItemRepository) GetById(ctx context.Context, itemId int) (model.Item, error) {
 	query := `SELECT id, title, description, pub_date FROM items WHERE id = $1`
 
-	executor := r.storage.QueryExecutor()
+	executor := r.QueryExecutor()
 
 	var (
 		id                 int
@@ -70,7 +75,7 @@ func (r *ItemRepository) GetById(ctx context.Context, itemId int) (model.Item, e
 func (r *ItemRepository) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM items WHERE id = $1`
 
-	executor := r.storage.ExecExecutor()
+	executor := r.ExecExecutor()
 	tag, err := executor.Exec(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete item with id=%d: %w", id, err)
@@ -91,7 +96,7 @@ func (r *ItemRepository) Update(ctx context.Context, id int, title, description 
 		RETURNING id, title, description, pub_date
 	`
 
-	executor := r.storage.QueryExecutor()
+	executor := r.QueryExecutor()
 	row := executor.QueryRow(ctx, query, title, description, pubTime, id)
 
 	var item model.Item
@@ -107,7 +112,7 @@ func (r *ItemRepository) Update(ctx context.Context, id int, title, description 
 }
 
 func (r *ItemRepository) getItems(ctx context.Context, query string, args ...any) ([]model.Item, error) {
-	executor := r.storage.QueryExecutor()
+	executor := r.QueryExecutor()
 
 	rows, err := executor.Query(ctx, query, args...)
 	if err != nil {

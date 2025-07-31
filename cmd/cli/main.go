@@ -9,6 +9,8 @@ import (
 	"syscall"
 
 	"github.com/marchuknikolay/rss-parser/internal/config"
+	"github.com/marchuknikolay/rss-parser/internal/fetcher"
+	"github.com/marchuknikolay/rss-parser/internal/parser"
 	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/server"
 	"github.com/marchuknikolay/rss-parser/internal/server/handlers"
@@ -30,10 +32,12 @@ func main() {
 		log.Fatalf("Failed creating a new database connection: %v", err)
 	}
 
-	channelRepository := repository.NewChannelRepository(storage)
-	itemRepository := repository.NewItemRepository(storage)
-
-	service := service.New(channelRepository, itemRepository, storage)
+	service := service.New(
+		fetcher.Fetcher{},
+		parser.Parser{},
+		storage,
+		repository.ChannelRepositoryFactory{},
+		repository.ItemRepositoryFactory{})
 
 	echo, err := handlers.New(service).InitRoutes()
 	if err != nil {

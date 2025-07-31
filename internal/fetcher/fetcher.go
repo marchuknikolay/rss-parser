@@ -6,7 +6,13 @@ import (
 	"net/http"
 )
 
-func Fetch(url string) ([]byte, error) {
+type Interface interface {
+	Fetch(url string) ([]byte, error)
+}
+
+type Fetcher struct{}
+
+func (f Fetcher) Fetch(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting data from %v, %w", url, err)

@@ -3,16 +3,17 @@ package server
 import (
 	"context"
 	"net/http"
+	"strconv"
 )
 
 type Server struct {
 	httpServer *http.Server
 }
 
-func New(port string, handler http.Handler) *Server {
+func New(port int, handler http.Handler) *Server {
 	return &Server{
 		httpServer: &http.Server{
-			Addr:    ":" + port,
+			Addr:    ":" + strconv.Itoa(port),
 			Handler: handler,
 		},
 	}

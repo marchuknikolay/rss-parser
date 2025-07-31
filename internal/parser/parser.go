@@ -7,7 +7,13 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/model"
 )
 
-func Parse(bs []byte) (model.Rss, error) {
+type Interface interface {
+	Parse(bs []byte) (model.Rss, error)
+}
+
+type Parser struct{}
+
+func (p Parser) Parse(bs []byte) (model.Rss, error) {
 	var rss model.Rss
 
 	if err := xml.Unmarshal(bs, &rss); err != nil {

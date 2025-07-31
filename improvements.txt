@@ -1,5 +1,6 @@
 Improvements:
-- linters
+- Linters
+- Refactor interface and type names
 - Review errors
 - Replace error by panic when it's better
 - Investigate if log.Fatalf should be removed

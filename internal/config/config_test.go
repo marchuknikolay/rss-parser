@@ -56,7 +56,7 @@ func TestNew(t *testing.T) {
 
 		config, err := New()
 
-		require.Nil(t, config)
 		require.Error(t, err)
+		require.Nil(t, config)
 	})
 }

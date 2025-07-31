@@ -9,6 +9,6 @@ type MockItemRepositoryFactory struct {
 	Repo repository.ItemRepositoryInterface
 }
 
-func (f *MockItemRepositoryFactory) New(storage.Interface) repository.ItemRepositoryInterface {
+func (f MockItemRepositoryFactory) New(storage.Interface) repository.ItemRepositoryInterface {
 	return f.Repo
 }

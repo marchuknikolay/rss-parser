@@ -2,11 +2,11 @@ package mock
 
 import (
 	"github.com/marchuknikolay/rss-parser/internal/model"
-	"github.com/marchuknikolay/rss-parser/internal/utils/mock"
+	"github.com/marchuknikolay/rss-parser/internal/testutils"
 )
 
 type MockParser struct {
-	ParseFunc func([]byte) (model.Rss, error)
+	ParseFunc func(bs []byte) (model.Rss, error)
 }
 
 func (m MockParser) Parse(bs []byte) (model.Rss, error) {
@@ -14,5 +14,5 @@ func (m MockParser) Parse(bs []byte) (model.Rss, error) {
 		return m.ParseFunc(bs)
 	}
 
-	return model.Rss{}, mock.ErrNotImplemented
+	return model.Rss{}, testutils.ErrNotImplemented
 }

@@ -85,7 +85,7 @@ func TestParse(t *testing.T) {
 
 		rss, err := Parser{}.Parse(invalidXml)
 
-		require.Empty(t, rss.Channels)
 		require.Error(t, err)
+		require.Empty(t, rss.Channels)
 	})
 }

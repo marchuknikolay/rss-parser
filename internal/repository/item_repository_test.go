@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/repository/mock"
-	utils "github.com/marchuknikolay/rss-parser/internal/utils/test"
+	"github.com/marchuknikolay/rss-parser/internal/testutils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestItemRepository_Save(t *testing.T) {
 				return pgconn.NewCommandTag(fmt.Sprintf("INSERT 0 %v", id)), nil
 			})
 
-		err := repo.Save(context.Background(), utils.CreateItemWithId(id), 1)
+		err := repo.Save(context.Background(), testutils.CreateItemWithId(id), 1)
 
 		require.NoError(t, err)
 	})
@@ -35,7 +35,7 @@ func TestItemRepository_Save(t *testing.T) {
 				return pgconn.NewCommandTag(""), errors.New("Executing failed")
 			})
 
-		err := repo.Save(context.Background(), utils.CreateItemWithId(1), 1)
+		err := repo.Save(context.Background(), testutils.CreateItemWithId(1), 1)
 
 		require.Error(t, err)
 	})
@@ -44,16 +44,16 @@ func TestItemRepository_Save(t *testing.T) {
 func TestItemRepository_GetAll(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		expected := []model.Item{
-			utils.CreateItemWithId(1),
-			utils.CreateItemWithId(2),
+			testutils.CreateItemWithId(1),
+			testutils.CreateItemWithId(2),
 		}
 
 		repo := setupItemRepositoryWithMockRows(expected)
 
 		actual, err := repo.GetAll(context.Background())
 
-		require.Equal(t, expected, actual)
 		require.NoError(t, err)
+		require.Equal(t, expected, actual)
 	})
 
 	t.Run("FailQuery", func(t *testing.T) {
@@ -61,8 +61,8 @@ func TestItemRepository_GetAll(t *testing.T) {
 
 		actual, err := repo.GetAll(context.Background())
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 
 	t.Run("FailScan", func(t *testing.T) {
@@ -70,8 +70,8 @@ func TestItemRepository_GetAll(t *testing.T) {
 
 		actual, err := repo.GetAll(context.Background())
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 
 	t.Run("IterationError", func(t *testing.T) {
@@ -79,24 +79,24 @@ func TestItemRepository_GetAll(t *testing.T) {
 
 		actual, err := repo.GetAll(context.Background())
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 }
 
 func TestItemRepository_GetByChannelId(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		expected := []model.Item{
-			utils.CreateItemWithId(1),
-			utils.CreateItemWithId(2),
+			testutils.CreateItemWithId(1),
+			testutils.CreateItemWithId(2),
 		}
 
 		repo := setupItemRepositoryWithMockRows(expected)
 
 		actual, err := repo.GetByChannelId(context.Background(), 1)
 
-		require.Equal(t, expected, actual)
 		require.NoError(t, err)
+		require.Equal(t, expected, actual)
 	})
 
 	t.Run("FailQuery", func(t *testing.T) {
@@ -104,8 +104,8 @@ func TestItemRepository_GetByChannelId(t *testing.T) {
 
 		actual, err := repo.GetByChannelId(context.Background(), 1)
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 
 	t.Run("FailScan", func(t *testing.T) {
@@ -113,8 +113,8 @@ func TestItemRepository_GetByChannelId(t *testing.T) {
 
 		actual, err := repo.GetByChannelId(context.Background(), 1)
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 
 	t.Run("IterationError", func(t *testing.T) {
@@ -122,14 +122,14 @@ func TestItemRepository_GetByChannelId(t *testing.T) {
 
 		actual, err := repo.GetByChannelId(context.Background(), 1)
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 }
 
 func TestItemRepository_GetById(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		expected := utils.CreateItemWithId(1)
+		expected := testutils.CreateItemWithId(1)
 
 		repo := setupItemRepository(func(dest ...any) error {
 			*(dest[0].(*int)) = expected.Id
@@ -142,8 +142,8 @@ func TestItemRepository_GetById(t *testing.T) {
 
 		actual, err := repo.GetById(context.Background(), 1)
 
-		require.Equal(t, expected, actual)
 		require.NoError(t, err)
+		require.Equal(t, expected, actual)
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
@@ -153,8 +153,8 @@ func TestItemRepository_GetById(t *testing.T) {
 
 		item, err := repo.GetById(context.Background(), 1)
 
-		require.Equal(t, model.Item{}, item)
 		require.Equal(t, ErrItemNotFound, err)
+		require.Equal(t, model.Item{}, item)
 	})
 
 	t.Run("FailScan", func(t *testing.T) {
@@ -164,8 +164,8 @@ func TestItemRepository_GetById(t *testing.T) {
 
 		item, err := repo.GetById(context.Background(), 1)
 
-		require.Equal(t, model.Item{}, item)
 		require.Error(t, err)
+		require.Equal(t, model.Item{}, item)
 	})
 }
 
@@ -173,17 +173,10 @@ func TestItemRepository_Delete(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		id := 1
 
-		mockCommandExecutor := &mock.MockCommandExecutor{
-			ExecFunc: func(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+		repo := setupItemRepositoryWithMockCommandExecutor(
+			func(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
 				return pgconn.NewCommandTag(fmt.Sprintf("DELETE %v", id)), nil
-			},
-		}
-
-		mockStorage := &mock.MockStorage{
-			ExecExecutorFunc: mockCommandExecutor,
-		}
-
-		repo := ItemRepositoryFactory{}.New(mockStorage)
+			})
 
 		err := repo.Delete(context.Background(), id)
 
@@ -191,17 +184,10 @@ func TestItemRepository_Delete(t *testing.T) {
 	})
 
 	t.Run("FailExec", func(t *testing.T) {
-		mockCommandExecutor := &mock.MockCommandExecutor{
-			ExecFunc: func(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+		repo := setupItemRepositoryWithMockCommandExecutor(
+			func(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
 				return pgconn.NewCommandTag(""), errors.New("Executing failed")
-			},
-		}
-
-		mockStorage := &mock.MockStorage{
-			ExecExecutorFunc: mockCommandExecutor,
-		}
-
-		repo := ItemRepositoryFactory{}.New(mockStorage)
+			})
 
 		err := repo.Delete(context.Background(), 1)
 
@@ -209,17 +195,10 @@ func TestItemRepository_Delete(t *testing.T) {
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
-		mockCommandExecutor := &mock.MockCommandExecutor{
-			ExecFunc: func(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+		repo := setupItemRepositoryWithMockCommandExecutor(
+			func(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
 				return pgconn.NewCommandTag(""), nil
-			},
-		}
-
-		mockStorage := &mock.MockStorage{
-			ExecExecutorFunc: mockCommandExecutor,
-		}
-
-		repo := ItemRepositoryFactory{}.New(mockStorage)
+			})
 
 		err := repo.Delete(context.Background(), 1)
 
@@ -229,7 +208,7 @@ func TestItemRepository_Delete(t *testing.T) {
 
 func TestItemRepository_Update(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		expected := utils.CreateItemWithId(1)
+		expected := testutils.CreateItemWithId(1)
 
 		repo := setupItemRepository(func(dest ...any) error {
 			*(dest[0].(*int)) = expected.Id
@@ -248,12 +227,12 @@ func TestItemRepository_Update(t *testing.T) {
 			time.Time(expected.PubDate),
 		)
 
-		require.Equal(t, expected, actual)
 		require.NoError(t, err)
+		require.Equal(t, expected, actual)
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
-		item := utils.CreateItemWithId(1)
+		item := testutils.CreateItemWithId(1)
 
 		repo := setupItemRepository(func(dest ...any) error {
 			return pgx.ErrNoRows
@@ -267,12 +246,12 @@ func TestItemRepository_Update(t *testing.T) {
 			time.Time(item.PubDate),
 		)
 
-		require.Equal(t, model.Item{}, actual)
 		require.Equal(t, ErrItemNotFound, err)
+		require.Equal(t, model.Item{}, actual)
 	})
 
 	t.Run("FailScan", func(t *testing.T) {
-		item := utils.CreateItemWithId(1)
+		item := testutils.CreateItemWithId(1)
 
 		repo := setupItemRepository(func(dest ...any) error {
 			return errors.New("Scanning failed")
@@ -286,8 +265,8 @@ func TestItemRepository_Update(t *testing.T) {
 			time.Time(item.PubDate),
 		)
 
-		require.Equal(t, model.Item{}, actual)
 		require.Error(t, err)
+		require.Equal(t, model.Item{}, actual)
 	})
 }
 

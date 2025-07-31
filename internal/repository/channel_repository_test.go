@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/repository/mock"
-	utils "github.com/marchuknikolay/rss-parser/internal/utils/test"
+	"github.com/marchuknikolay/rss-parser/internal/testutils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,10 +24,10 @@ func TestChannelRepository_Save(t *testing.T) {
 			return nil
 		})
 
-		actual, err := repo.Save(context.Background(), utils.CreateChannelWithId(expected))
+		actual, err := repo.Save(context.Background(), testutils.CreateChannelWithId(expected))
 
-		require.Equal(t, expected, actual)
 		require.NoError(t, err)
+		require.Equal(t, expected, actual)
 	})
 
 	t.Run("Fail", func(t *testing.T) {
@@ -37,18 +37,18 @@ func TestChannelRepository_Save(t *testing.T) {
 			return errors.New("Saving failed")
 		})
 
-		actual, err := repo.Save(context.Background(), utils.CreateChannelWithId(1))
+		actual, err := repo.Save(context.Background(), testutils.CreateChannelWithId(1))
 
-		require.Equal(t, expected, actual)
 		require.Error(t, err)
+		require.Equal(t, expected, actual)
 	})
 }
 
 func TestChannelRepository_GetAll(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		expected := []model.Channel{
-			utils.CreateChannelWithId(1),
-			utils.CreateChannelWithId(2),
+			testutils.CreateChannelWithId(1),
+			testutils.CreateChannelWithId(2),
 		}
 
 		i := 0
@@ -81,8 +81,8 @@ func TestChannelRepository_GetAll(t *testing.T) {
 
 		actual, err := repo.GetAll(context.Background())
 
-		require.Equal(t, expected, actual)
 		require.NoError(t, err)
+		require.Equal(t, expected, actual)
 	})
 
 	t.Run("FailQuery", func(t *testing.T) {
@@ -100,8 +100,8 @@ func TestChannelRepository_GetAll(t *testing.T) {
 
 		actual, err := repo.GetAll(context.Background())
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 
 	t.Run("FailScan", func(t *testing.T) {
@@ -127,11 +127,11 @@ func TestChannelRepository_GetAll(t *testing.T) {
 
 		actual, err := repo.GetAll(context.Background())
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 
-	t.Run("FaiIterationErrorlScan", func(t *testing.T) {
+	t.Run("IterationError", func(t *testing.T) {
 		mockRows := &mock.MockRows{
 			ErrFunc:  func() error { return errors.New("Iteration error") },
 			NextFunc: func() bool { return false },
@@ -151,14 +151,14 @@ func TestChannelRepository_GetAll(t *testing.T) {
 
 		actual, err := repo.GetAll(context.Background())
 
-		require.Nil(t, actual)
 		require.Error(t, err)
+		require.Nil(t, actual)
 	})
 }
 
 func TestChannelRepository_GetById(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		expected := utils.CreateChannelWithId(1)
+		expected := testutils.CreateChannelWithId(1)
 
 		repo := setupChannelRepository(func(dest ...any) error {
 			*(dest[0].(*int)) = expected.Id
@@ -171,8 +171,8 @@ func TestChannelRepository_GetById(t *testing.T) {
 
 		actual, err := repo.GetById(context.Background(), 1)
 
-		require.Equal(t, expected, actual)
 		require.NoError(t, err)
+		require.Equal(t, expected, actual)
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
@@ -182,8 +182,8 @@ func TestChannelRepository_GetById(t *testing.T) {
 
 		channel, err := repo.GetById(context.Background(), 1)
 
-		require.Equal(t, model.Channel{}, channel)
 		require.Equal(t, ErrChannelNotFound, err)
+		require.Equal(t, model.Channel{}, channel)
 	})
 
 	t.Run("FailScan", func(t *testing.T) {
@@ -193,8 +193,8 @@ func TestChannelRepository_GetById(t *testing.T) {
 
 		channel, err := repo.GetById(context.Background(), 1)
 
-		require.Equal(t, model.Channel{}, channel)
 		require.Error(t, err)
+		require.Equal(t, model.Channel{}, channel)
 	})
 }
 
@@ -258,7 +258,7 @@ func TestChannelRepository_Delete(t *testing.T) {
 
 func TestChannelRepository_Update(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		expected := utils.CreateChannelWithId(1)
+		expected := testutils.CreateChannelWithId(1)
 
 		repo := setupChannelRepository(func(dest ...any) error {
 			*(dest[0].(*int)) = expected.Id
@@ -277,12 +277,12 @@ func TestChannelRepository_Update(t *testing.T) {
 			expected.Description,
 		)
 
-		require.Equal(t, expected, actual)
 		require.NoError(t, err)
+		require.Equal(t, expected, actual)
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
-		channel := utils.CreateChannelWithId(1)
+		channel := testutils.CreateChannelWithId(1)
 
 		repo := setupChannelRepository(func(dest ...any) error {
 			return pgx.ErrNoRows
@@ -296,12 +296,12 @@ func TestChannelRepository_Update(t *testing.T) {
 			channel.Description,
 		)
 
-		require.Equal(t, model.Channel{}, actual)
 		require.Equal(t, ErrChannelNotFound, err)
+		require.Equal(t, model.Channel{}, actual)
 	})
 
-	t.Run("NotFailScanFound", func(t *testing.T) {
-		channel := utils.CreateChannelWithId(1)
+	t.Run("FailScan", func(t *testing.T) {
+		channel := testutils.CreateChannelWithId(1)
 
 		repo := setupChannelRepository(func(dest ...any) error {
 			return errors.New("Scanning failed")
@@ -315,8 +315,8 @@ func TestChannelRepository_Update(t *testing.T) {
 			channel.Description,
 		)
 
-		require.Equal(t, model.Channel{}, actual)
 		require.Error(t, err)
+		require.Equal(t, model.Channel{}, actual)
 	})
 }
 

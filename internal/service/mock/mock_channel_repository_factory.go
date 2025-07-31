@@ -9,6 +9,6 @@ type MockChannelRepositoryFactory struct {
 	Repo repository.ChannelRepositoryInterface
 }
 
-func (f *MockChannelRepositoryFactory) New(storage.Interface) repository.ChannelRepositoryInterface {
+func (f MockChannelRepositoryFactory) New(storage.Interface) repository.ChannelRepositoryInterface {
 	return f.Repo
 }

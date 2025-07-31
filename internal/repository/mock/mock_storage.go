@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/marchuknikolay/rss-parser/internal/storage"
-	"github.com/marchuknikolay/rss-parser/internal/utils/mock"
+	"github.com/marchuknikolay/rss-parser/internal/testutils"
 )
 
 type MockStorage struct {
@@ -27,7 +27,7 @@ func (m MockStorage) WithTransaction(ctx context.Context, fn func(txStorage stor
 		return m.WithTransactionFunc(ctx, fn)
 	}
 
-	return mock.ErrNotImplemented
+	return testutils.ErrNotImplemented
 }
 
 func (m MockStorage) Close() {

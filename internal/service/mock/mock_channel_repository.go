@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/marchuknikolay/rss-parser/internal/model"
-	"github.com/marchuknikolay/rss-parser/internal/utils/mock"
+	"github.com/marchuknikolay/rss-parser/internal/testutils"
 )
 
 type MockChannelRepository struct {
@@ -20,7 +20,7 @@ func (m *MockChannelRepository) Save(ctx context.Context, ch model.Channel) (int
 		return m.SaveFunc(ctx, ch)
 	}
 
-	return 0, mock.ErrNotImplemented
+	return 0, testutils.ErrNotImplemented
 }
 
 func (m *MockChannelRepository) GetAll(ctx context.Context) ([]model.Channel, error) {
@@ -28,7 +28,7 @@ func (m *MockChannelRepository) GetAll(ctx context.Context) ([]model.Channel, er
 		return m.GetAllFunc(ctx)
 	}
 
-	return nil, mock.ErrNotImplemented
+	return nil, testutils.ErrNotImplemented
 }
 
 func (m *MockChannelRepository) GetById(ctx context.Context, id int) (model.Channel, error) {
@@ -36,7 +36,7 @@ func (m *MockChannelRepository) GetById(ctx context.Context, id int) (model.Chan
 		return m.GetByIdFunc(ctx, id)
 	}
 
-	return model.Channel{}, mock.ErrNotImplemented
+	return model.Channel{}, testutils.ErrNotImplemented
 }
 
 func (m *MockChannelRepository) Delete(ctx context.Context, id int) error {
@@ -44,7 +44,7 @@ func (m *MockChannelRepository) Delete(ctx context.Context, id int) error {
 		return m.DeleteFunc(ctx, id)
 	}
 
-	return mock.ErrNotImplemented
+	return testutils.ErrNotImplemented
 }
 
 func (m *MockChannelRepository) Update(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
@@ -52,5 +52,5 @@ func (m *MockChannelRepository) Update(ctx context.Context, id int, title, langu
 		return m.UpdateFunc(ctx, id, title, language, description)
 	}
 
-	return model.Channel{}, mock.ErrNotImplemented
+	return model.Channel{}, testutils.ErrNotImplemented
 }

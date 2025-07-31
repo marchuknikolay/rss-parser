@@ -9,5 +9,5 @@ type ChannelRepositoryFactoryInterface interface {
 type ChannelRepositoryFactory struct{}
 
 func (ChannelRepositoryFactory) New(st storage.Interface) ChannelRepositoryInterface {
-	return &ChannelRepository{storage: st}
+	return &ChannelRepository{st}
 }

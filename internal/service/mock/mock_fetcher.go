@@ -1,9 +1,9 @@
 package mock
 
-import "github.com/marchuknikolay/rss-parser/internal/utils/mock"
+import "github.com/marchuknikolay/rss-parser/internal/testutils"
 
 type MockFetcher struct {
-	FetchFunc func(string) ([]byte, error)
+	FetchFunc func(url string) ([]byte, error)
 }
 
 func (m MockFetcher) Fetch(url string) ([]byte, error) {
@@ -11,5 +11,5 @@ func (m MockFetcher) Fetch(url string) ([]byte, error) {
 		return m.FetchFunc(url)
 	}
 
-	return nil, mock.ErrNotImplemented
+	return nil, testutils.ErrNotImplemented
 }

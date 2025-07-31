@@ -3,9 +3,8 @@ package mock
 import (
 	"context"
 
-	"github.com/marchuknikolay/rss-parser/internal/utils/mock"
-
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/marchuknikolay/rss-parser/internal/testutils"
 )
 
 type MockCommandExecutor struct {
@@ -17,5 +16,5 @@ func (m MockCommandExecutor) Exec(ctx context.Context, sql string, args ...any) 
 		return m.ExecFunc(ctx, sql, args...)
 	}
 
-	return pgconn.CommandTag{}, mock.ErrNotImplemented
+	return pgconn.CommandTag{}, testutils.ErrNotImplemented
 }

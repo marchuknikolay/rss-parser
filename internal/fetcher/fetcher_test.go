@@ -39,7 +39,7 @@ func TestFetch(t *testing.T) {
 
 		bs, err := Fetcher{}.Fetch(server.URL)
 
-		require.Nil(t, bs)
 		require.Error(t, err)
+		require.Nil(t, bs)
 	})
 }

@@ -9,5 +9,5 @@ type ItemRepositoryFactoryInterface interface {
 type ItemRepositoryFactory struct{}
 
 func (ItemRepositoryFactory) New(st storage.Interface) ItemRepositoryInterface {
-	return &ItemRepository{storage: st}
+	return &ItemRepository{st}
 }

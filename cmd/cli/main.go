@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,7 +34,7 @@ func main() {
 	}
 
 	service := service.New(
-		fetcher.Fetcher{},
+		fetcher.New(http.DefaultClient),
 		parser.Parser{},
 		storage,
 		repository.ChannelRepositoryFactory{},

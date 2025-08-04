@@ -101,7 +101,7 @@ func (r *ItemRepository) Update(ctx context.Context, id int, title, description 
 
 	var item model.Item
 	if err := row.Scan(&item.Id, &item.Title, &item.Description, &item.PubDate); err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Item{}, ErrItemNotFound
 		}
 

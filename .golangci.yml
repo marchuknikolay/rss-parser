@@ -17,6 +17,13 @@ linters:
     - durationcheck # checks for two durations multiplied together
     - embeddedstructfieldcheck # checks embedded types in structs
     - errcheck # checking for unchecked errors
+    - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
+    - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
+    - exhaustive # checks exhaustiveness of enum switch statements
+    - exhaustruct # checks if all structure fields are initialized
+    - exptostd # detects functions from golang.org/x/exp/ that can be replaced by std functions
+    - fatcontext # detects nested contexts in loops
+    - forbidigo # forbids identifiers (Print functions by default)
   
   settings:
     errcheck:
@@ -29,8 +36,21 @@ linters:
     embeddedstructfieldcheck:
       forbid-mutex: true
 
+    exhaustive:
+      check:
+        - switch
+        - map
+
+    exhaustruct:
+      exclude:
+        - ^net/http.Response$
+        - ^net/http.Server$
+        - ^github.com/marchuknikolay/rss-parser/internal/model.Channel$
+        - ^github.com/marchuknikolay/rss-parser/internal/storage.Storage$
+
   exclusions:
     rules:
       - path: '_test\.go'
         linters:
           - dupl
+          - exhaustruct

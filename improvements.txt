@@ -3,7 +3,7 @@ Improvements:
 - Refactor interface and type names
 - Update readme
 - Improve logging
-- Review errors
+- Review errors (err113 linter)
 - Replace error by panic when it's better
 - Investigate if log.Fatalf should be removed
 - Investigate a possibility to use https://pkg.go.dev/embed

@@ -110,7 +110,7 @@ func (r *ChannelRepository) Update(ctx context.Context, id int, title, language,
 
 	var channel model.Channel
 	if err := row.Scan(&channel.Id, &channel.Title, &channel.Language, &channel.Description); err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Channel{}, ErrChannelNotFound
 		}
 

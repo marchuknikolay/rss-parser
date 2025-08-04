@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/jackc/pgx/v5"
@@ -58,7 +59,7 @@ func (s *Storage) WithTransaction(ctx context.Context, fn func(Interface) error)
 	}
 
 	defer func() {
-		if err := tx.Rollback(ctx); err != nil && err != pgx.ErrTxClosed {
+		if err := tx.Rollback(ctx); err != nil && !errors.Is(err, pgx.ErrTxClosed) {
 			log.Printf("transaction rollback failed: %v", err)
 		}
 	}()

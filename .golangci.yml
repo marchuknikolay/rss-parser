@@ -8,9 +8,29 @@ linters:
     - bodyclose # checks whether HTTP response body is closed successfully
     - canonicalheader # checks whether net/http.Header uses canonical header
     - containedctx # detects struct contained context.Context field
+    - contextcheck # checks the function whether use a non-inherited context
+    - copyloopvar # detects places where loop variables are copied
+    - cyclop # checks function and package cyclomatic complexity
+    - dogsled # checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
+    - dupl # detects duplicate fragments of code
+    - dupword # checks for duplicate words in the source code
+    - durationcheck # checks for two durations multiplied together
+    - embeddedstructfieldcheck # checks embedded types in structs
     - errcheck # checking for unchecked errors
   
   settings:
     errcheck:
       check-type-assertions: true
       check-blank: true
+    
+    copyloopvar:
+      check-alias: true
+
+    embeddedstructfieldcheck:
+      forbid-mutex: true
+
+  exclusions:
+    rules:
+      - path: '_test\.go'
+        linters:
+          - dupl

@@ -145,7 +145,7 @@ func TestService_ImportFeed(t *testing.T) {
 		}
 
 		mockChannelRepo := &servicemock.MockChannelRepository{
-			SaveFunc: func(ctx context.Context, ch model.Channel) (int, error) {
+			SaveFunc: func(ctx context.Context, ch *model.Channel) (int, error) {
 				return 1, nil
 			},
 		}
@@ -241,7 +241,7 @@ func TestService_ImportFeed(t *testing.T) {
 		}
 
 		mockChannelRepo := &servicemock.MockChannelRepository{
-			SaveFunc: func(ctx context.Context, ch model.Channel) (int, error) {
+			SaveFunc: func(ctx context.Context, ch *model.Channel) (int, error) {
 				return 0, errors.New("Channel saving failed")
 			},
 		}
@@ -287,7 +287,7 @@ func TestService_ImportFeed(t *testing.T) {
 		}
 
 		mockChannelRepo := &servicemock.MockChannelRepository{
-			SaveFunc: func(ctx context.Context, ch model.Channel) (int, error) {
+			SaveFunc: func(ctx context.Context, ch *model.Channel) (int, error) {
 				return 1, nil
 			},
 		}

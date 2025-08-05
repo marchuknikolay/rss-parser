@@ -24,7 +24,7 @@ func New(c HTTPClient) Fetcher {
 }
 
 func (f Fetcher) Fetch(url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, http.NoBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating a GET request for %v, %w", url, err)
 	}

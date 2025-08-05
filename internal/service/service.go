@@ -135,7 +135,7 @@ func (s *Service) DeleteChannel(ctx context.Context, id int) error {
 			}
 		}
 
-		if err = channelRepository.Delete(ctx, id); err != nil {
+		if err := channelRepository.Delete(ctx, id); err != nil {
 			return err
 		}
 
@@ -175,13 +175,13 @@ func (s *Service) saveChannels(ctx context.Context, channels []model.Channel) er
 		channelRepository := s.channelRepositoryFactory.New(txStorage)
 		itemRepository := s.itemRepositoryFactory.New(txStorage)
 
-		for _, channel := range channels {
-			channelId, err := channelRepository.Save(ctx, channel)
+		for i := range channels {
+			channelId, err := channelRepository.Save(ctx, &channels[i])
 			if err != nil {
 				return err
 			}
 
-			for _, item := range channel.Items {
+			for _, item := range channels[i].Items {
 				if err := itemRepository.Save(ctx, item, channelId); err != nil {
 					return err
 				}

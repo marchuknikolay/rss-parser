@@ -13,7 +13,7 @@ import (
 var ErrChannelNotFound = errors.New("channel not found")
 
 type ChannelRepositoryInterface interface {
-	Save(ctx context.Context, channel model.Channel) (int, error)
+	Save(ctx context.Context, channel *model.Channel) (int, error)
 	GetAll(ctx context.Context) ([]model.Channel, error)
 	GetById(ctx context.Context, id int) (model.Channel, error)
 	Delete(ctx context.Context, id int) error
@@ -24,7 +24,7 @@ type ChannelRepository struct {
 	storage.Interface
 }
 
-func (r *ChannelRepository) Save(ctx context.Context, channel model.Channel) (int, error) {
+func (r *ChannelRepository) Save(ctx context.Context, channel *model.Channel) (int, error) {
 	var channelId int
 	query := "INSERT INTO channels (title, language, description) VALUES ($1, $2, $3) RETURNING id"
 

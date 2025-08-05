@@ -30,6 +30,8 @@ linters:
     - gochecknoinits # checks that no init functions are present in Go code
     - gochecksumtype # checks exhaustiveness on Go "sum types"
     - gocognit # computes and checks the cognitive complexity of functions
+    - goconst # finds repeated strings that could be replaced by a constant
+    - gocritic # provides diagnostics that check for bugs, performance and style issues
   
   settings:
     errcheck:
@@ -56,6 +58,24 @@ linters:
 
     gocognit:
       min-complexity: 20
+
+    goconst:
+      min-len: 2
+      min-occurrences: 2
+      numbers: true
+      find-duplicates: true
+
+    gocritic:
+      enable-all: true
+      disabled-checks:
+        - whyNoLint
+      settings:
+        nestingReduce:
+          bodyWidth: 4
+        rangeValCopy:
+          sizeThreshold: 80
+        tooManyResultsChecker:
+          maxResults: 2
 
   exclusions:
     rules:

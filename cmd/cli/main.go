@@ -20,40 +20,40 @@ import (
 )
 
 func main() {
-	config, err := config.New()
+	cfg, err := config.New()
 	if err != nil {
 		log.Fatalf("Failed loading config: %v", err)
 	}
 
 	connString := fmt.Sprintf("postgres://%v:%v@%v:%v/%v",
-		config.DB.User, config.DB.Password, config.DB.Host, config.DB.ContainerPort, config.DB.Name)
+		cfg.DB.User, cfg.DB.Password, cfg.DB.Host, cfg.DB.ContainerPort, cfg.DB.Name)
 
-	storage, err := storage.New(connString)
+	st, err := storage.New(connString)
 	if err != nil {
 		log.Fatalf("Failed creating a new database connection: %v", err)
 	}
 
-	service := service.New(
+	svc := service.New(
 		fetcher.New(http.DefaultClient),
 		parser.Parser{},
-		storage,
+		st,
 		repository.ChannelRepositoryFactory{},
 		repository.ItemRepositoryFactory{})
 
-	echo, err := handlers.New(service).InitRoutes()
+	echo, err := handlers.New(svc).InitRoutes()
 	if err != nil {
 		log.Fatalf("Failed initializing routes: %v", err)
 	}
 
-	server := server.New(config.Server.Port, echo)
+	srv := server.New(cfg.Server.Port, echo)
 
 	go func() {
-		if err = server.Start(); err != nil {
+		if err = srv.Start(); err != nil {
 			log.Fatalf("failed starting the server: %v", err)
 		}
 	}()
 
-	log.Printf("The server is running on port %v", config.Server.Port)
+	log.Printf("The server is running on port %v", cfg.Server.Port)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
@@ -61,14 +61,14 @@ func main() {
 
 	log.Println("Shutting down the server")
 
-	ctx, cancel := context.WithTimeout(context.Background(), config.Server.ShutdownTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.Server.ShutdownTimeout)
 	defer cancel()
 
-	if err := server.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("Failed shutting down the server: %v", err)
 	}
 
-	storage.Close()
+	st.Close()
 
 	log.Println("The server stopped gracefully")
 }

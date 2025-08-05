@@ -24,7 +24,8 @@ func TestChannelRepository_Save(t *testing.T) {
 			return nil
 		})
 
-		actual, err := repo.Save(context.Background(), testutils.CreateChannelWithId(expected))
+		ch := testutils.CreateChannelWithId(expected)
+		actual, err := repo.Save(context.Background(), &ch)
 
 		require.NoError(t, err)
 		require.Equal(t, expected, actual)
@@ -37,7 +38,8 @@ func TestChannelRepository_Save(t *testing.T) {
 			return errors.New("Saving failed")
 		})
 
-		actual, err := repo.Save(context.Background(), testutils.CreateChannelWithId(1))
+		ch := testutils.CreateChannelWithId(expected)
+		actual, err := repo.Save(context.Background(), &ch)
 
 		require.Error(t, err)
 		require.Equal(t, expected, actual)
@@ -58,7 +60,7 @@ func TestChannelRepository_GetAll(t *testing.T) {
 				channel := expected[i]
 				i++
 
-				fillDestWithChannel(dest, channel)
+				fillDestWithChannel(dest, &channel)
 
 				return nil
 			},
@@ -158,7 +160,7 @@ func TestChannelRepository_GetById(t *testing.T) {
 		expected := testutils.CreateChannelWithId(1)
 
 		repo := setupChannelRepository(func(dest ...any) error {
-			fillDestWithChannel(dest, expected)
+			fillDestWithChannel(dest, &expected)
 
 			return nil
 		})
@@ -255,7 +257,7 @@ func TestChannelRepository_Update(t *testing.T) {
 		expected := testutils.CreateChannelWithId(1)
 
 		repo := setupChannelRepository(func(dest ...any) error {
-			fillDestWithChannel(dest, expected)
+			fillDestWithChannel(dest, &expected)
 
 			return nil
 		})
@@ -329,7 +331,7 @@ func setupChannelRepository(scanFunc func(dest ...any) error) ChannelRepositoryI
 	return ChannelRepositoryFactory{}.New(mockStorage)
 }
 
-func fillDestWithChannel(dest []any, ch model.Channel) {
+func fillDestWithChannel(dest []any, ch *model.Channel) {
 	*(dest[0].(*int)) = ch.Id             //nolint:errcheck
 	*(dest[1].(*string)) = ch.Title       //nolint:errcheck
 	*(dest[2].(*string)) = ch.Language    //nolint:errcheck

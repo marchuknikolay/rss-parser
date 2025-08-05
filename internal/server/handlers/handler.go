@@ -14,24 +14,24 @@ type Handler struct {
 	service *service.Service
 }
 
-func New(service *service.Service) *Handler {
+func New(svc *service.Service) *Handler {
 	return &Handler{
-		service: service,
+		service: svc,
 	}
 }
 
 func (h *Handler) InitRoutes() (*echo.Echo, error) {
 	router := echo.New()
 
-	funcs := template.FuncMap{
+	funcMap := template.FuncMap{
 		"formatDate": funcs.FormatDate,
 	}
 
-	renderer, err := renderer.New("internal/server/templates/", &funcs)
+	r, err := renderer.New("internal/server/templates/", &funcMap)
 	if err != nil {
 		return nil, err
 	}
-	router.Renderer = renderer
+	router.Renderer = r
 
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
@@ -40,21 +40,17 @@ func (h *Handler) InitRoutes() (*echo.Echo, error) {
 	router.Static("/", "public/static")
 
 	channels := router.Group("/channels")
-	{
-		channels.POST("/", h.importFeeds)
-		channels.GET("/", h.getChannels)
-		channels.GET("/:id/", h.getItemsByChannelId)
-		channels.PUT("/:id/", h.updateChannel)
-		channels.DELETE("/:id/", h.deleteChannel)
-	}
+	channels.POST("/", h.importFeeds)
+	channels.GET("/", h.getChannels)
+	channels.GET("/:id/", h.getItemsByChannelId)
+	channels.PUT("/:id/", h.updateChannel)
+	channels.DELETE("/:id/", h.deleteChannel)
 
 	items := router.Group("/items")
-	{
-		items.GET("/", h.getItems)
-		items.GET("/:id/", h.getItemById)
-		items.DELETE("/:id/", h.deleteItem)
-		items.PUT("/:id/", h.updateItem)
-	}
+	items.GET("/", h.getItems)
+	items.GET("/:id/", h.getItemById)
+	items.DELETE("/:id/", h.deleteItem)
+	items.PUT("/:id/", h.updateItem)
 
 	return router, nil
 }

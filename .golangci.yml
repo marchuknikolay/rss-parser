@@ -10,7 +10,6 @@ linters:
     - containedctx # detects struct contained context.Context field
     - contextcheck # checks the function whether use a non-inherited context
     - copyloopvar # detects places where loop variables are copied
-    - cyclop # checks function and package cyclomatic complexity
     - dogsled # checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
     - dupl # detects duplicate fragments of code
     - dupword # checks for duplicate words in the source code
@@ -24,6 +23,13 @@ linters:
     - exptostd # detects functions from golang.org/x/exp/ that can be replaced by std functions
     - fatcontext # detects nested contexts in loops
     - forbidigo # forbids identifiers (Print functions by default)
+    - funcorder # checks the order of functions, methods, and constructors
+    - funlen # checks for long functions
+    - gocheckcompilerdirectives # checks that go compiler directive comments (//go:) are valid
+    - gochecknoglobals # checks that no global variables exist
+    - gochecknoinits # checks that no init functions are present in Go code
+    - gochecksumtype # checks exhaustiveness on Go "sum types"
+    - gocognit # computes and checks the cognitive complexity of functions
   
   settings:
     errcheck:
@@ -48,9 +54,17 @@ linters:
         - ^github.com/marchuknikolay/rss-parser/internal/model.Channel$
         - ^github.com/marchuknikolay/rss-parser/internal/storage.Storage$
 
+    gocognit:
+      min-complexity: 20
+
   exclusions:
     rules:
       - path: '_test\.go'
         linters:
           - dupl
           - exhaustruct
+          - gochecknoglobals
+
+      - source: "^func Test"
+        linters:
+          - funlen

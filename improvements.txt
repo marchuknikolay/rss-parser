@@ -1,5 +1,5 @@
 Improvements:
-- Linters (depguard, gomodguard)
+- Linters (depguard, gomodguard, ireturn)
 - Refactor interface and type names
 - Update readme
 - Improve logging

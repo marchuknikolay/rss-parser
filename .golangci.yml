@@ -37,6 +37,9 @@ linters:
     - gosec # inspects source code for security problems
     - govet # reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
     - iface # checks the incorrect use of interfaces, helping developers avoid interface pollution
+    - ineffassign # detects when assignments to existing variables are not used
+    - interfacebloat # checks the number of methods inside an interface
+    - intrange # finds places where for loops could make use of an integer range
   
   settings:
     errcheck:
@@ -94,6 +97,9 @@ linters:
         - unused
         - opaque
         - unexported
+
+    interfacebloat:
+      max: 6
 
   exclusions:
     rules:

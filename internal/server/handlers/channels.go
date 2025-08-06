@@ -76,7 +76,7 @@ func (h *Handler) updateChannel(c echo.Context) error {
 		Description string `json:"description"`
 	}
 
-	if err := c.Bind(&input); err != nil {
+	if err = c.Bind(&input); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body: "+err.Error())
 	}
 

@@ -8,22 +8,36 @@ import (
 	"sync"
 	"time"
 
-	"github.com/marchuknikolay/rss-parser/internal/fetcher"
 	"github.com/marchuknikolay/rss-parser/internal/model"
-	"github.com/marchuknikolay/rss-parser/internal/parser"
 	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
 
+type FetcherInterface interface {
+	Fetch(url string) ([]byte, error)
+}
+
+type ParserInterface interface {
+	Parse(bs []byte) (model.Rss, error)
+}
+
+type ChannelRepositoryFactoryInterface interface {
+	New(st storage.Interface) repository.ChannelRepositoryInterface
+}
+
+type ItemRepositoryFactoryInterface interface {
+	New(st storage.Interface) repository.ItemRepositoryInterface
+}
+
 type Service struct {
-	fetcher fetcher.Interface
-	parser  parser.Interface
+	fetcher FetcherInterface
+	parser  ParserInterface
 
 	storage storage.Interface
 
 	// Factories for transactional calls
-	channelRepositoryFactory repository.ChannelRepositoryFactoryInterface
-	itemRepositoryFactory    repository.ItemRepositoryFactoryInterface
+	channelRepositoryFactory ChannelRepositoryFactoryInterface
+	itemRepositoryFactory    ItemRepositoryFactoryInterface
 
 	// Repositories for simple calls
 	channelRepository repository.ChannelRepositoryInterface
@@ -31,11 +45,11 @@ type Service struct {
 }
 
 func New(
-	f fetcher.Interface,
-	p parser.Interface,
+	f FetcherInterface,
+	p ParserInterface,
 	st storage.Interface,
-	channelRepoFactory repository.ChannelRepositoryFactoryInterface,
-	itemRepoFactory repository.ItemRepositoryFactoryInterface,
+	channelRepoFactory ChannelRepositoryFactoryInterface,
+	itemRepoFactory ItemRepositoryFactoryInterface,
 ) *Service {
 	return &Service{
 		fetcher:                  f,
@@ -135,7 +149,7 @@ func (s *Service) DeleteChannel(ctx context.Context, id int) error {
 			}
 		}
 
-		if err = channelRepository.Delete(ctx, id); err != nil {
+		if err := channelRepository.Delete(ctx, id); err != nil {
 			return err
 		}
 
@@ -175,13 +189,13 @@ func (s *Service) saveChannels(ctx context.Context, channels []model.Channel) er
 		channelRepository := s.channelRepositoryFactory.New(txStorage)
 		itemRepository := s.itemRepositoryFactory.New(txStorage)
 
-		for _, channel := range channels {
-			channelId, err := channelRepository.Save(ctx, channel)
+		for i := range channels {
+			channelId, err := channelRepository.Save(ctx, &channels[i])
 			if err != nil {
 				return err
 			}
 
-			for _, item := range channel.Items {
+			for _, item := range channels[i].Items {
 				if err := itemRepository.Save(ctx, item, channelId); err != nil {
 					return err
 				}

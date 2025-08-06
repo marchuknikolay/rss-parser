@@ -11,10 +11,6 @@ type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-type Interface interface {
-	Fetch(url string) ([]byte, error)
-}
-
 type Fetcher struct {
 	client HTTPClient
 }

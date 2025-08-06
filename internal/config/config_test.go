@@ -18,8 +18,8 @@ func TestNew(t *testing.T) {
 			dbName     = "name"
 			dbPort     = 1234
 
-			serverPort            = 4321
-			serverShutdownTimeout = 5 * time.Second
+			serverPort = 4321
+			timeout    = 5 * time.Second
 		)
 
 		t.Cleanup(func() {
@@ -34,7 +34,8 @@ func TestNew(t *testing.T) {
 		require.NoError(t, os.Setenv("DB_CONTAINER_PORT", strconv.Itoa(dbPort)))
 
 		require.NoError(t, os.Setenv("SERVER_PORT", strconv.Itoa(serverPort)))
-		require.NoError(t, os.Setenv("SERVER_SHUTDOWN_TIMEOUT", serverShutdownTimeout.String()))
+		require.NoError(t, os.Setenv("SERVER_SHUTDOWN_TIMEOUT", timeout.String()))
+		require.NoError(t, os.Setenv("SERVER_READ_HEADER_TIMEOUT", timeout.String()))
 
 		config, err := New()
 
@@ -48,7 +49,8 @@ func TestNew(t *testing.T) {
 		require.Equal(t, dbPort, config.DB.ContainerPort)
 
 		require.Equal(t, serverPort, config.Server.Port)
-		require.Equal(t, serverShutdownTimeout, config.Server.ShutdownTimeout)
+		require.Equal(t, timeout, config.Server.ShutdownTimeout)
+		require.Equal(t, timeout, config.Server.ReadHeaderTimeout)
 	})
 
 	t.Run("MissingEnvVariables", func(t *testing.T) {

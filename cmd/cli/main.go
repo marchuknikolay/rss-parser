@@ -45,7 +45,7 @@ func main() {
 		log.Fatalf("Failed initializing routes: %v", err)
 	}
 
-	srv := server.New(cfg.Server.Port, echo)
+	srv := server.New(cfg.Server.Port, echo, cfg.Server.ReadHeaderTimeout)
 
 	go func() {
 		if err = srv.Start(); err != nil {

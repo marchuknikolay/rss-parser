@@ -11,6 +11,7 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type itemView struct {
@@ -59,10 +60,13 @@ func (h *Handler) getItemById(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get item: "+err.Error())
 	}
 
+	policy := bluemonday.UGCPolicy()
+	safeHTML := policy.Sanitize(item.Description)
+
 	view := itemView{
 		Title:       item.Title,
 		PubDate:     item.PubDate,
-		Description: template.HTML(item.Description),
+		Description: template.HTML(safeHTML),
 	}
 
 	return c.Render(http.StatusOK, constants.ItemTemplate, view)
@@ -100,7 +104,7 @@ func (h *Handler) updateItem(c echo.Context) error {
 		PubDate     string `json:"pub_date"`
 	}
 
-	if err := c.Bind(&input); err != nil {
+	if err = c.Bind(&input); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to bind input data: "+err.Error())
 	}
 

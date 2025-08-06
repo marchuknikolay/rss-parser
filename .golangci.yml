@@ -32,6 +32,11 @@ linters:
     - gocognit # computes and checks the cognitive complexity of functions
     - goconst # finds repeated strings that could be replaced by a constant
     - gocritic # provides diagnostics that check for bugs, performance and style issues
+    - gocyclo # computes and checks the cyclomatic complexity of functions
+    - godox # detects usage of FIXME, TODO and other keywords inside comments
+    - gosec # inspects source code for security problems
+    - govet # reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
+    - iface # checks the incorrect use of interfaces, helping developers avoid interface pollution
   
   settings:
     errcheck:
@@ -77,14 +82,37 @@ linters:
         tooManyResultsChecker:
           maxResults: 2
 
+    gocyclo:
+      min-complexity: 10
+
+    govet:
+      enable-all: true
+
+    iface:
+      enable:
+        - identical
+        - unused
+        - opaque
+        - unexported
+
   exclusions:
     rules:
-      - path: '_test\.go'
+      - path: '_test.go'
         linters:
           - dupl
           - exhaustruct
           - gochecknoglobals
 
-      - source: "^func Test"
+      - source: '^func Test'
         linters:
           - funlen
+
+      - path: 'internal/server/handlers/items.go'
+        linters:
+          - gosec
+        text: 'G203'
+
+      - path: 'internal/model/model.go'
+        linters:
+          - govet
+        text: 'fieldalignment'

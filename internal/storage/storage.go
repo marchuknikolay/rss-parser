@@ -32,7 +32,7 @@ type Storage struct {
 	Tx   pgx.Tx
 }
 
-func New(connString string) (Interface, error) {
+func New(connString string) (*Storage, error) {
 	pool, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		return nil, err

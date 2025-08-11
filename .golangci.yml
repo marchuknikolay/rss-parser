@@ -40,6 +40,14 @@ linters:
     - ineffassign # detects when assignments to existing variables are not used
     - interfacebloat # checks the number of methods inside an interface
     - intrange # finds places where for loops could make use of an integer range
+    - maintidx # measures the maintainability index of each function
+    - makezero # finds slice declarations with non-zero initial length
+    - mirror # reports wrong mirror patterns of bytes/strings usage
+    - misspell # finds commonly misspelled English words
+    - mnd # detects magic numbers
+    - musttag # enforces field tags in (un)marshaled structs
+    - nakedret # finds naked returns in functions greater than a specified function length
+    - nestif # reports deeply nested if statements
   
   settings:
     errcheck:
@@ -100,6 +108,9 @@ linters:
 
     interfacebloat:
       max: 6
+
+    misspell:
+      locale: US
 
   exclusions:
     rules:

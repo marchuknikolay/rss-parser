@@ -20,7 +20,7 @@ const rssFeedUrl = "https://test.feed/rss"
 func TestService_ImportFeeds(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -61,7 +61,7 @@ func TestService_ImportFeeds(t *testing.T) {
 		}
 
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				if url == urls[1] {
 					return nil, fmt.Errorf("fetching for url %v failed", url)
 				}
@@ -101,7 +101,7 @@ func TestService_ImportFeeds(t *testing.T) {
 
 	t.Run("AllImportsFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, fmt.Errorf("fetching for url %v failed", url)
 			},
 		}
@@ -123,7 +123,7 @@ func TestService_ImportFeeds(t *testing.T) {
 func TestService_ImportFeed(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -179,7 +179,7 @@ func TestService_ImportFeed(t *testing.T) {
 
 	t.Run("FetchingFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, errors.New("Fetching failed")
 			},
 		}
@@ -199,7 +199,7 @@ func TestService_ImportFeed(t *testing.T) {
 
 	t.Run("ParsingFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -225,7 +225,7 @@ func TestService_ImportFeed(t *testing.T) {
 
 	t.Run("ChannelSavingFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -271,7 +271,7 @@ func TestService_ImportFeed(t *testing.T) {
 
 	t.Run("ItemSavingFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}

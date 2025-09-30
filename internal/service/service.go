@@ -14,7 +14,7 @@ import (
 )
 
 type FetcherInterface interface {
-	Fetch(url string) ([]byte, error)
+	Fetch(ctx context.Context, url string) ([]byte, error)
 }
 
 type ParserInterface interface {
@@ -109,7 +109,7 @@ func (s *Service) ImportFeeds(ctx context.Context, urls []string) error {
 }
 
 func (s *Service) ImportFeed(ctx context.Context, url string) error {
-	bs, err := s.fetcher.Fetch(url)
+	bs, err := s.fetcher.Fetch(ctx, url)
 	if err != nil {
 		return err
 	}

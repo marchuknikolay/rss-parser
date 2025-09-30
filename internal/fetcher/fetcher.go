@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -19,8 +20,8 @@ func New(c HTTPClient) Fetcher {
 	return Fetcher{client: c}
 }
 
-func (f Fetcher) Fetch(url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, http.NoBody)
+func (f Fetcher) Fetch(ctx context.Context, url string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating a GET request for %v, %w", url, err)
 	}

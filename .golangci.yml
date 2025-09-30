@@ -48,6 +48,10 @@ linters:
     - musttag # enforces field tags in (un)marshaled structs
     - nakedret # finds naked returns in functions greater than a specified function length
     - nestif # reports deeply nested if statements
+    - nilnesserr # reports that it checks for err != nil, but it returns a different nil value error
+    - nilnil # checks that there is no simultaneous return of nil error and an invalid value
+    - nlreturn # checks for a new line before return and branch statements to increase code clarity
+    - noctx # finds sending http request without context.Context
   
   settings:
     errcheck:
@@ -111,6 +115,9 @@ linters:
 
     misspell:
       locale: US
+
+    nilnil:
+      detect-opposite: true
 
   exclusions:
     rules:

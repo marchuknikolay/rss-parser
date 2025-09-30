@@ -37,11 +37,13 @@ func (r *ItemRepository) Save(ctx context.Context, item model.Item, channelId in
 
 func (r *ItemRepository) GetAll(ctx context.Context) ([]model.Item, error) {
 	query := `SELECT id, title, description, pub_date FROM items`
+
 	return r.getItems(ctx, query)
 }
 
 func (r *ItemRepository) GetByChannelId(ctx context.Context, channelId int) ([]model.Item, error) {
 	query := `SELECT id, title, description, pub_date FROM items WHERE channel_id = $1`
+
 	return r.getItems(ctx, query, channelId)
 }
 

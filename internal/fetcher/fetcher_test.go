@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 )
 
 func TestFetch(t *testing.T) {
+	ctx := context.Background()
+
 	t.Run("Success", func(t *testing.T) {
 		const content = "Content"
 
@@ -23,7 +26,7 @@ func TestFetch(t *testing.T) {
 		defer server.Close()
 
 		fetcher := New(http.DefaultClient)
-		bs, err := fetcher.Fetch(server.URL)
+		bs, err := fetcher.Fetch(ctx, server.URL)
 
 		require.NoError(t, err)
 		require.Equal(t, content, string(bs))
@@ -31,7 +34,7 @@ func TestFetch(t *testing.T) {
 
 	t.Run("InvalidURL", func(t *testing.T) {
 		fetcher := New(&mock.MockHTTPClient{})
-		bs, err := fetcher.Fetch("::://invalid-url")
+		bs, err := fetcher.Fetch(ctx, "::://invalid-url")
 
 		require.Error(t, err)
 		require.Nil(t, bs)
@@ -39,7 +42,7 @@ func TestFetch(t *testing.T) {
 
 	t.Run("NetworkError", func(t *testing.T) {
 		fetcher := New(http.DefaultClient)
-		_, err := fetcher.Fetch("https://invalid.url")
+		_, err := fetcher.Fetch(ctx, "https://invalid.url")
 
 		require.Error(t, err)
 	})
@@ -60,7 +63,7 @@ func TestFetch(t *testing.T) {
 		}
 
 		fetcher := New(&mock.MockHTTPClient{Resp: resp})
-		_, err := fetcher.Fetch("http://example.com")
+		_, err := fetcher.Fetch(ctx, "http://example.com")
 
 		require.NoError(t, err)
 	})
@@ -72,7 +75,7 @@ func TestFetch(t *testing.T) {
 		defer server.Close()
 
 		fetcher := New(http.DefaultClient)
-		bs, err := fetcher.Fetch(server.URL)
+		bs, err := fetcher.Fetch(ctx, server.URL)
 
 		require.Error(t, err)
 		require.Nil(t, bs)

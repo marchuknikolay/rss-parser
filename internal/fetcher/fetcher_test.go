@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -53,7 +54,7 @@ func TestFetch(t *testing.T) {
 				return 0, io.EOF
 			},
 			CloseFunc: func() error {
-				return fmt.Errorf("Close error")
+				return errors.New("Close error")
 			},
 		}
 

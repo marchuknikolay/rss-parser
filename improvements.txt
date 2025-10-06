@@ -1,5 +1,5 @@
 Improvements:
-- Linters (depguard, gomodguard, ireturn)
+- Linters (depguard, gomodguard, ireturn, revive)
 - Refactor interface and type names
 - Update readme
 - Improve logging
@@ -7,4 +7,5 @@ Improvements:
 - Replace error by panic when it's better
 - Investigate if log.Fatalf should be removed
 - Investigate a possibility to use https://pkg.go.dev/embed
-- Investigate improving fetcher (possible extension, e.g. using NewRequestWithContext)
+- Use Github Actions
+- Possible adding of pre-commmit hooks with running linters

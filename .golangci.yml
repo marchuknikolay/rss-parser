@@ -60,6 +60,11 @@ linters:
     - predeclared # finds code that shadows one of Go's predeclared identifiers
     - reassign # checks that package variables are not reassigned
     - recvcheck # checks for receiver type consistency
+    - rowserrcheck # checks whether Err of rows is checked successfully
+    - sqlclosecheck # checks that sql.Rows and sql.Stmt are closed
+    - staticcheck # it's the set of rules from staticcheck
+    - tagalign # check that struct tags are well aligned
+    - testableexamples # # checks if examples are testable (have an expected output)
   
   settings:
     errcheck:

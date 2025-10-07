@@ -65,6 +65,11 @@ linters:
     - staticcheck # it's the set of rules from staticcheck
     - tagalign # check that struct tags are well aligned
     - testableexamples # # checks if examples are testable (have an expected output)
+    - testifylint # checks usage of github.com/stretchr/testify
+    - thelper # thelper detects tests helpers which do not start with the t.Helper() method
+    - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
+    - unconvert # removes unnecessary type conversions
+    - unparam # reports unused function parameters
   
   settings:
     errcheck:
@@ -137,6 +142,9 @@ linters:
 
     nonamedreturns:
       report-error-in-defer: true
+
+    testifylint:
+      enable-all: true
 
   exclusions:
     rules:

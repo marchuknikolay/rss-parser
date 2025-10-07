@@ -21,8 +21,9 @@ func TestFetch(t *testing.T) {
 
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			_, err := fmt.Fprint(w, content)
-			require.NoError(t, err)
+			if _, err := fmt.Fprint(w, content); err != nil {
+				t.Errorf("failed to write response: %v", err)
+			}
 		}))
 		defer server.Close()
 

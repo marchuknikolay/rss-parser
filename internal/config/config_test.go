@@ -26,16 +26,16 @@ func TestNew(t *testing.T) {
 			os.Clearenv()
 		})
 
-		require.NoError(t, os.Setenv("DB_HOST", dbHost))
-		require.NoError(t, os.Setenv("DB_USER", dbUser))
-		require.NoError(t, os.Setenv("DB_PASSWORD", dbPassword))
-		require.NoError(t, os.Setenv("DB_NAME", dbName))
-		require.NoError(t, os.Setenv("DB_HOST_PORT", strconv.Itoa(dbPort)))
-		require.NoError(t, os.Setenv("DB_CONTAINER_PORT", strconv.Itoa(dbPort)))
+		t.Setenv("DB_HOST", dbHost)
+		t.Setenv("DB_USER", dbUser)
+		t.Setenv("DB_PASSWORD", dbPassword)
+		t.Setenv("DB_NAME", dbName)
+		t.Setenv("DB_HOST_PORT", strconv.Itoa(dbPort))
+		t.Setenv("DB_CONTAINER_PORT", strconv.Itoa(dbPort))
 
-		require.NoError(t, os.Setenv("SERVER_PORT", strconv.Itoa(serverPort)))
-		require.NoError(t, os.Setenv("SERVER_SHUTDOWN_TIMEOUT", timeout.String()))
-		require.NoError(t, os.Setenv("SERVER_READ_HEADER_TIMEOUT", timeout.String()))
+		t.Setenv("SERVER_PORT", strconv.Itoa(serverPort))
+		t.Setenv("SERVER_SHUTDOWN_TIMEOUT", timeout.String())
+		t.Setenv("SERVER_READ_HEADER_TIMEOUT", timeout.String())
 
 		config, err := New()
 

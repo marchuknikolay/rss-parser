@@ -20,14 +20,12 @@ func TestFetch(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		const content = "Content"
 
-		server := httptest.NewServer(
-			http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				if _, err := fmt.Fprint(w, content); err != nil {
-					t.Errorf("failed to write response: %v", err)
-				}
-			}),
-		)
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			if _, err := fmt.Fprint(w, content); err != nil {
+				t.Errorf("failed to write response: %v", err)
+			}
+		}))
 		defer server.Close()
 
 		fetcher := New(http.DefaultClient)

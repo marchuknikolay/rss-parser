@@ -47,7 +47,11 @@ func (m *MockChannelRepository) Delete(ctx context.Context, id int) error {
 	return testutils.ErrNotImplemented
 }
 
-func (m *MockChannelRepository) Update(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
+func (m *MockChannelRepository) Update(
+	ctx context.Context,
+	id int,
+	title, language, description string,
+) (model.Channel, error) {
 	if m.UpdateFunc != nil {
 		return m.UpdateFunc(ctx, id, title, language, description)
 	}

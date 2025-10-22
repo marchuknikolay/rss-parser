@@ -188,3 +188,6 @@ formatters:
     goimports:
       local-prefixes:
         - github.com/marchuknikolay/rss-parser
+
+    golines:
+      max-len: 120

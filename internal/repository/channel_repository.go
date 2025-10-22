@@ -98,7 +98,11 @@ func (r *ChannelRepository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *ChannelRepository) Update(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
+func (r *ChannelRepository) Update(
+	ctx context.Context,
+	id int,
+	title, language, description string,
+) (model.Channel, error) {
 	query := `
 		UPDATE channels
 		SET title = $1, language = $2, description = $3

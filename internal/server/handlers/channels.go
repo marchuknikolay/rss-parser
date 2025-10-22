@@ -31,10 +31,7 @@ func (h *Handler) importFeeds(c echo.Context) error {
 	}
 
 	if err := h.service.ImportFeeds(c.Request().Context(), urls); err != nil {
-		return echo.NewHTTPError(
-			http.StatusInternalServerError,
-			"Failed to import feeds: "+err.Error(),
-		)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to import feeds: "+err.Error())
 	}
 
 	return c.Render(http.StatusOK, constants.MessageTemplate, struct{ Message string }{Message: "Import successful!"})
@@ -84,7 +81,13 @@ func (h *Handler) updateChannel(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body: "+err.Error())
 	}
 
-	updatedChannel, err := h.service.UpdateChannel(c.Request().Context(), id, input.Title, input.Language, input.Description)
+	updatedChannel, err := h.service.UpdateChannel(
+		c.Request().Context(),
+		id,
+		input.Title,
+		input.Language,
+		input.Description,
+	)
 	if err != nil {
 		if errors.Is(err, repository.ErrChannelNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "Channel not found")

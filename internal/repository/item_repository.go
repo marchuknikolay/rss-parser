@@ -91,7 +91,12 @@ func (r *ItemRepository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *ItemRepository) Update(ctx context.Context, id int, title, description string, pubTime time.Time) (model.Item, error) {
+func (r *ItemRepository) Update(
+	ctx context.Context,
+	id int,
+	title, description string,
+	pubTime time.Time,
+) (model.Item, error) {
 	query := `
 		UPDATE items
 		SET title = $1, description = $2, pub_date = $3

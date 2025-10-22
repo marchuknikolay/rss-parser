@@ -157,7 +157,11 @@ func (s *Service) DeleteChannel(ctx context.Context, id int) error {
 	})
 }
 
-func (s *Service) UpdateChannel(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
+func (s *Service) UpdateChannel(
+	ctx context.Context,
+	id int,
+	title, language, description string,
+) (model.Channel, error) {
 	return s.channelRepository.Update(ctx, id, title, language, description)
 }
 
@@ -177,7 +181,12 @@ func (s *Service) DeleteItem(ctx context.Context, itemId int) error {
 	return s.itemRepository.Delete(ctx, itemId)
 }
 
-func (s *Service) UpdateItem(ctx context.Context, itemId int, title, description string, pubDate time.Time) (model.Item, error) {
+func (s *Service) UpdateItem(
+	ctx context.Context,
+	itemId int,
+	title, description string,
+	pubDate time.Time,
+) (model.Item, error) {
 	return s.itemRepository.Update(ctx, itemId, title, description, pubDate)
 }
 

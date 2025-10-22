@@ -9,10 +9,11 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/stretchr/testify/require"
+
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/repository/mock"
 	"github.com/marchuknikolay/rss-parser/internal/testutils"
-	"github.com/stretchr/testify/require"
 )
 
 func TestItemRepository_Save(t *testing.T) {

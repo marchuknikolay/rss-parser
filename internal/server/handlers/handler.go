@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
 	"github.com/marchuknikolay/rss-parser/internal/server/renderer"
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/funcs"
 	"github.com/marchuknikolay/rss-parser/internal/service"

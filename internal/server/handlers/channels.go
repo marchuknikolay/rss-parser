@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
 )
@@ -30,7 +31,10 @@ func (h *Handler) importFeeds(c echo.Context) error {
 	}
 
 	if err := h.service.ImportFeeds(c.Request().Context(), urls); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to import feeds: "+err.Error())
+		return echo.NewHTTPError(
+			http.StatusInternalServerError,
+			"Failed to import feeds: "+err.Error(),
+		)
 	}
 
 	return c.Render(http.StatusOK, constants.MessageTemplate, struct{ Message string }{Message: "Import successful!"})

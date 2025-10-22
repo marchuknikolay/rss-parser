@@ -7,12 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	repomock "github.com/marchuknikolay/rss-parser/internal/repository/mock"
 	servicemock "github.com/marchuknikolay/rss-parser/internal/service/mock"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 	"github.com/marchuknikolay/rss-parser/internal/testutils"
-	"github.com/stretchr/testify/require"
 )
 
 const rssFeedUrl = "https://test.feed/rss"

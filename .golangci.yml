@@ -172,3 +172,19 @@ linters:
         linters:
           - govet
         text: 'fieldalignment'
+
+formatters:
+  enable:
+    - gofmt # check if the code is formatted according to 'gofmt' command
+    - goimports # checks if the code and import statements are formatted according to the 'goimports' command
+    - golines # checks if code is formatted, and fixes long lines
+
+  settings:
+    gofmt:
+      rewrite-rules:
+        - pattern: 'interface{}'
+          replacement: 'any'
+
+    goimports:
+      local-prefixes:
+        - github.com/marchuknikolay/rss-parser

@@ -6,8 +6,9 @@ import (
 	"os"
 
 	_ "github.com/lib/pq"
-	"github.com/marchuknikolay/rss-parser/internal/config"
 	"github.com/pressly/goose"
+
+	"github.com/marchuknikolay/rss-parser/internal/config"
 )
 
 const (

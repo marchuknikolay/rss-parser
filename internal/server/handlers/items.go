@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/microcosm-cc/bluemonday"
+
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
-	"github.com/microcosm-cc/bluemonday"
 )
 
 type itemView struct {

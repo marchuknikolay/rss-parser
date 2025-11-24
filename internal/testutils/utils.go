@@ -7,6 +7,8 @@ import (
 	"github.com/marchuknikolay/rss-parser/internal/model"
 )
 
+const utcPlus3Offset = 3 * 60 * 60
+
 func CreateChannelWithId(id int) model.Channel {
 	return model.Channel{
 		Id:          id,
@@ -21,7 +23,7 @@ func CreateItemWithId(id int) model.Item {
 		Id:          id,
 		Title:       fmt.Sprintf("Item %v", id),
 		Description: fmt.Sprintf("Item %v description", id),
-		PubDate:     model.DateTime(time.Date(2025, 7, 27, 13, 45, 0, 0, time.FixedZone("UTC+3", 3*60*60))),
+		PubDate:     model.DateTime(time.Date(2025, 7, 27, 13, 45, 0, 0, time.FixedZone("UTC+3", utcPlus3Offset))),
 	}
 }
 

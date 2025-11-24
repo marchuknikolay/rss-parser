@@ -6,8 +6,9 @@ import (
 	"os"
 
 	_ "github.com/lib/pq"
-	"github.com/marchuknikolay/rss-parser/internal/config"
 	"github.com/pressly/goose"
+
+	"github.com/marchuknikolay/rss-parser/internal/config"
 )
 
 const (
@@ -21,13 +22,13 @@ func main() {
 		log.Fatalf("Minimum args count is %v, but actual is %v\n", minArgsCount, actualArgsCount)
 	}
 
-	config, err := config.New()
+	cfg, err := config.New()
 	if err != nil {
 		log.Fatalf("Failed loading config: %v", err)
 	}
 
 	dbString := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable",
-		config.DB.Host, config.DB.User, config.DB.Password, config.DB.Name, config.DB.ContainerPort)
+		cfg.DB.Host, cfg.DB.User, cfg.DB.Password, cfg.DB.Name, cfg.DB.ContainerPort)
 
 	db, err := goose.OpenDBWithDriver(dbDriver, dbString)
 	if err != nil {
@@ -49,6 +50,6 @@ func main() {
 	command := os.Args[1]
 
 	if err := goose.Run(command, db, migrationsDir, gooseArgs...); err != nil {
-		log.Fatalf("goose: failed to run a command: %v", err)
+		log.Printf("goose: failed to run a command: %v", err)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/marchuknikolay/rss-parser/internal/repository"
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
 )
@@ -76,11 +77,17 @@ func (h *Handler) updateChannel(c echo.Context) error {
 		Description string `json:"description"`
 	}
 
-	if err := c.Bind(&input); err != nil {
+	if err = c.Bind(&input); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body: "+err.Error())
 	}
 
-	updatedChannel, err := h.service.UpdateChannel(c.Request().Context(), id, input.Title, input.Language, input.Description)
+	updatedChannel, err := h.service.UpdateChannel(
+		c.Request().Context(),
+		id,
+		input.Title,
+		input.Language,
+		input.Description,
+	)
 	if err != nil {
 		if errors.Is(err, repository.ErrChannelNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "Channel not found")

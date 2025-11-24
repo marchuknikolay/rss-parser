@@ -7,12 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	repomock "github.com/marchuknikolay/rss-parser/internal/repository/mock"
 	servicemock "github.com/marchuknikolay/rss-parser/internal/service/mock"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 	"github.com/marchuknikolay/rss-parser/internal/testutils"
-	"github.com/stretchr/testify/require"
 )
 
 const rssFeedUrl = "https://test.feed/rss"
@@ -20,7 +21,7 @@ const rssFeedUrl = "https://test.feed/rss"
 func TestService_ImportFeeds(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -61,7 +62,7 @@ func TestService_ImportFeeds(t *testing.T) {
 		}
 
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				if url == urls[1] {
 					return nil, fmt.Errorf("fetching for url %v failed", url)
 				}
@@ -101,7 +102,7 @@ func TestService_ImportFeeds(t *testing.T) {
 
 	t.Run("AllImportsFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, fmt.Errorf("fetching for url %v failed", url)
 			},
 		}
@@ -123,7 +124,7 @@ func TestService_ImportFeeds(t *testing.T) {
 func TestService_ImportFeed(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -145,7 +146,7 @@ func TestService_ImportFeed(t *testing.T) {
 		}
 
 		mockChannelRepo := &servicemock.MockChannelRepository{
-			SaveFunc: func(ctx context.Context, ch model.Channel) (int, error) {
+			SaveFunc: func(ctx context.Context, ch *model.Channel) (int, error) {
 				return 1, nil
 			},
 		}
@@ -179,7 +180,7 @@ func TestService_ImportFeed(t *testing.T) {
 
 	t.Run("FetchingFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, errors.New("Fetching failed")
 			},
 		}
@@ -199,7 +200,7 @@ func TestService_ImportFeed(t *testing.T) {
 
 	t.Run("ParsingFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -225,7 +226,7 @@ func TestService_ImportFeed(t *testing.T) {
 
 	t.Run("ChannelSavingFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -241,7 +242,7 @@ func TestService_ImportFeed(t *testing.T) {
 		}
 
 		mockChannelRepo := &servicemock.MockChannelRepository{
-			SaveFunc: func(ctx context.Context, ch model.Channel) (int, error) {
+			SaveFunc: func(ctx context.Context, ch *model.Channel) (int, error) {
 				return 0, errors.New("Channel saving failed")
 			},
 		}
@@ -271,7 +272,7 @@ func TestService_ImportFeed(t *testing.T) {
 
 	t.Run("ItemSavingFailed", func(t *testing.T) {
 		mockFetcher := servicemock.MockFetcher{
-			FetchFunc: func(url string) ([]byte, error) {
+			FetchFunc: func(ctx context.Context, url string) ([]byte, error) {
 				return nil, nil
 			},
 		}
@@ -287,7 +288,7 @@ func TestService_ImportFeed(t *testing.T) {
 		}
 
 		mockChannelRepo := &servicemock.MockChannelRepository{
-			SaveFunc: func(ctx context.Context, ch model.Channel) (int, error) {
+			SaveFunc: func(ctx context.Context, ch *model.Channel) (int, error) {
 				return 1, nil
 			},
 		}

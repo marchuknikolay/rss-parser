@@ -9,10 +9,11 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/stretchr/testify/require"
+
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/repository/mock"
 	"github.com/marchuknikolay/rss-parser/internal/testutils"
-	"github.com/stretchr/testify/require"
 )
 
 func TestItemRepository_Save(t *testing.T) {
@@ -132,10 +133,7 @@ func TestItemRepository_GetById(t *testing.T) {
 		expected := testutils.CreateItemWithId(1)
 
 		repo := setupItemRepository(func(dest ...any) error {
-			*(dest[0].(*int)) = expected.Id
-			*(dest[1].(*string)) = expected.Title
-			*(dest[2].(*string)) = expected.Description
-			*(dest[3].(*time.Time)) = time.Time(expected.PubDate)
+			fillDestWithItemTime(dest, expected)
 
 			return nil
 		})
@@ -211,10 +209,7 @@ func TestItemRepository_Update(t *testing.T) {
 		expected := testutils.CreateItemWithId(1)
 
 		repo := setupItemRepository(func(dest ...any) error {
-			*(dest[0].(*int)) = expected.Id
-			*(dest[1].(*string)) = expected.Title
-			*(dest[2].(*string)) = expected.Description
-			*(dest[3].(*model.DateTime)) = expected.PubDate
+			fillDestWithItemModelTime(dest, expected)
 
 			return nil
 		})
@@ -292,10 +287,7 @@ func setupItemRepositoryWithMockRows(items []model.Item) ItemRepositoryInterface
 			item := items[i]
 			i++
 
-			*(dest[0].(*int)) = item.Id
-			*(dest[1].(*string)) = item.Title
-			*(dest[2].(*string)) = item.Description
-			*(dest[3].(*time.Time)) = time.Time(item.PubDate)
+			fillDestWithItemTime(dest, item)
 
 			return nil
 		},
@@ -385,4 +377,18 @@ func setupItemRepository(scanFunc func(dest ...any) error) ItemRepositoryInterfa
 	}
 
 	return ItemRepositoryFactory{}.New(mockStorage)
+}
+
+func fillDestWithItemTime(dest []any, item model.Item) {
+	*(dest[0].(*int)) = item.Id                       //nolint:errcheck
+	*(dest[1].(*string)) = item.Title                 //nolint:errcheck
+	*(dest[2].(*string)) = item.Description           //nolint:errcheck
+	*(dest[3].(*time.Time)) = time.Time(item.PubDate) //nolint:errcheck
+}
+
+func fillDestWithItemModelTime(dest []any, item model.Item) {
+	*(dest[0].(*int)) = item.Id                 //nolint:errcheck
+	*(dest[1].(*string)) = item.Title           //nolint:errcheck
+	*(dest[2].(*string)) = item.Description     //nolint:errcheck
+	*(dest[3].(*model.DateTime)) = item.PubDate //nolint:errcheck
 }

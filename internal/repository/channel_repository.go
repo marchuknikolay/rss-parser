@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
+
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
@@ -13,7 +14,7 @@ import (
 var ErrChannelNotFound = errors.New("channel not found")
 
 type ChannelRepositoryInterface interface {
-	Save(ctx context.Context, channel model.Channel) (int, error)
+	Save(ctx context.Context, channel *model.Channel) (int, error)
 	GetAll(ctx context.Context) ([]model.Channel, error)
 	GetById(ctx context.Context, id int) (model.Channel, error)
 	Delete(ctx context.Context, id int) error
@@ -24,7 +25,7 @@ type ChannelRepository struct {
 	storage.Interface
 }
 
-func (r *ChannelRepository) Save(ctx context.Context, channel model.Channel) (int, error) {
+func (r *ChannelRepository) Save(ctx context.Context, channel *model.Channel) (int, error) {
 	var channelId int
 	query := "INSERT INTO channels (title, language, description) VALUES ($1, $2, $3) RETURNING id"
 
@@ -97,7 +98,11 @@ func (r *ChannelRepository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *ChannelRepository) Update(ctx context.Context, id int, title, language, description string) (model.Channel, error) {
+func (r *ChannelRepository) Update(
+	ctx context.Context,
+	id int,
+	title, language, description string,
+) (model.Channel, error) {
 	query := `
 		UPDATE channels
 		SET title = $1, language = $2, description = $3
@@ -110,7 +115,7 @@ func (r *ChannelRepository) Update(ctx context.Context, id int, title, language,
 
 	var channel model.Channel
 	if err := row.Scan(&channel.Id, &channel.Title, &channel.Language, &channel.Description); err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Channel{}, ErrChannelNotFound
 		}
 

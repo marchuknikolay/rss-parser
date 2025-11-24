@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/marchuknikolay/rss-parser/internal/server/templates/constants"
 )
 
@@ -57,7 +58,7 @@ func New(path string, funcMap *template.FuncMap) (*Renderer, error) {
 	return &Renderer{templates: tmpls}, nil
 }
 
-func (r *Renderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+func (r *Renderer) Render(w io.Writer, name string, data any, c echo.Context) error {
 	tmpl, ok := r.templates[name]
 	if !ok {
 		return fmt.Errorf("template %v not found", name)

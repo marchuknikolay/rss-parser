@@ -57,7 +57,12 @@ func (m *MockItemRepository) Delete(ctx context.Context, id int) error {
 	return testutils.ErrNotImplemented
 }
 
-func (m *MockItemRepository) Update(ctx context.Context, id int, title, description string, pubDate time.Time) (model.Item, error) {
+func (m *MockItemRepository) Update(
+	ctx context.Context,
+	id int,
+	title, description string,
+	pubDate time.Time,
+) (model.Item, error) {
 	if m.UpdateFunc != nil {
 		return m.UpdateFunc(ctx, id, title, description, pubDate)
 	}

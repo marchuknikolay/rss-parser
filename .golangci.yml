@@ -1,0 +1,260 @@
+version: "2"
+
+linters:
+  enable:
+    - asasalint # checks for pass []any as any in variadic func(...any)
+    - asciicheck # checks that your code does not contain non-ASCII identifiers
+    - bidichk # checks for dangerous unicode character sequences
+    - bodyclose # checks whether HTTP response body is closed successfully
+    - canonicalheader # checks whether net/http.Header uses canonical header
+    - containedctx # detects struct contained context.Context field
+    - contextcheck # checks the function whether use a non-inherited context
+    - copyloopvar # detects places where loop variables are copied
+    - dogsled # checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
+    - dupl # detects duplicate fragments of code
+    - dupword # checks for duplicate words in the source code
+    - durationcheck # checks for two durations multiplied together
+    - embeddedstructfieldcheck # checks embedded types in structs
+    - errcheck # checking for unchecked errors
+    - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
+    - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
+    - exhaustive # checks exhaustiveness of enum switch statements
+    - exhaustruct # checks if all structure fields are initialized
+    - exptostd # detects functions from golang.org/x/exp/ that can be replaced by std functions
+    - fatcontext # detects nested contexts in loops
+    - forbidigo # forbids identifiers (Print functions by default)
+    - funcorder # checks the order of functions, methods, and constructors
+    - funlen # checks for long functions
+    - gocheckcompilerdirectives # checks that go compiler directive comments (//go:) are valid
+    - gochecknoglobals # checks that no global variables exist
+    - gochecknoinits # checks that no init functions are present in Go code
+    - gochecksumtype # checks exhaustiveness on Go "sum types"
+    - gocognit # computes and checks the cognitive complexity of functions
+    - goconst # finds repeated strings that could be replaced by a constant
+    - gocritic # provides diagnostics that check for bugs, performance and style issues
+    - gocyclo # computes and checks the cyclomatic complexity of functions
+    - godox # detects usage of FIXME, TODO and other keywords inside comments
+    - gosec # inspects source code for security problems
+    - govet # reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
+    - iface # checks the incorrect use of interfaces, helping developers avoid interface pollution
+    - ineffassign # detects when assignments to existing variables are not used
+    - interfacebloat # checks the number of methods inside an interface
+    - intrange # finds places where for loops could make use of an integer range
+    - maintidx # measures the maintainability index of each function
+    - makezero # finds slice declarations with non-zero initial length
+    - mirror # reports wrong mirror patterns of bytes/strings usage
+    - misspell # finds commonly misspelled English words
+    - mnd # detects magic numbers
+    - musttag # enforces field tags in (un)marshaled structs
+    - nakedret # finds naked returns in functions greater than a specified function length
+    - nestif # reports deeply nested if statements
+    - nilnesserr # reports that it checks for err != nil, but it returns a different nil value error
+    - nilnil # checks that there is no simultaneous return of nil error and an invalid value
+    - nlreturn # checks for a new line before return and branch statements to increase code clarity
+    - noctx # finds sending http request without context.Context
+    - nolintlint # reports ill-formed or insufficient nolint directives
+    - nonamedreturns # reports all named returns
+    - nosprintfhostport # checks for misuse of Sprintf to construct a host with port in a URL
+    - perfsprint # checks that fmt.Sprintf can be replaced with a faster alternative
+    - prealloc # find slice declarations that could potentially be pre-allocated
+    - predeclared # finds code that shadows one of Go's predeclared identifiers
+    - reassign # checks that package variables are not reassigned
+    - recvcheck # checks for receiver type consistency
+    - revive # fast, configurable, extensible, flexible, and beautiful linter for Go
+    - rowserrcheck # checks whether Err of rows is checked successfully
+    - sqlclosecheck # checks that sql.Rows and sql.Stmt are closed
+    - staticcheck # it's the set of rules from staticcheck
+    - tagalign # check that struct tags are well aligned
+    - testableexamples # # checks if examples are testable (have an expected output)
+    - testifylint # checks usage of github.com/stretchr/testify
+    - thelper # thelper detects tests helpers which do not start with the t.Helper() method
+    - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
+    - unconvert # removes unnecessary type conversions
+    - unparam # reports unused function parameters
+    - unused # checks for unused constants, variables, functions and types
+    - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
+    - usetesting # reports uses of functions with replacement inside the testing package
+    - wastedassign # finds wasted assignment statements
+    - whitespace # detects leading and trailing whitespace
+  
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    
+    copyloopvar:
+      check-alias: true
+
+    embeddedstructfieldcheck:
+      forbid-mutex: true
+
+    exhaustive:
+      check:
+        - switch
+        - map
+
+    exhaustruct:
+      exclude:
+        - ^net/http.Response$
+        - ^net/http.Server$
+        - ^github.com/marchuknikolay/rss-parser/internal/model.Channel$
+        - ^github.com/marchuknikolay/rss-parser/internal/storage.Storage$
+
+    gocognit:
+      min-complexity: 20
+
+    goconst:
+      min-len: 2
+      min-occurrences: 2
+      numbers: true
+      find-duplicates: true
+
+    gocritic:
+      enable-all: true
+      disabled-checks:
+        - whyNoLint
+      settings:
+        nestingReduce:
+          bodyWidth: 4
+        rangeValCopy:
+          sizeThreshold: 80
+        tooManyResultsChecker:
+          maxResults: 2
+
+    gocyclo:
+      min-complexity: 10
+
+    govet:
+      enable-all: true
+
+    iface:
+      enable:
+        - identical
+        - unused
+        - opaque
+        - unexported
+
+    interfacebloat:
+      max: 6
+
+    misspell:
+      locale: US
+
+    nilnil:
+      detect-opposite: true
+    
+    nolintlint:
+      require-specific: true
+
+    nonamedreturns:
+      report-error-in-defer: true
+
+    revive:
+      rules:
+        - name: argument-limit
+        - name: atomic
+        - name: blank-imports
+        - name: bool-literal-in-expr
+        - name: call-to-gc
+        - name: comment-spacings
+        - name: confusing-naming
+        - name: confusing-results
+        - name: constant-logical-expr
+        - name: datarace
+        - name: deep-exit
+        - name: defer
+        - name: dot-imports
+        - name: duplicated-imports
+        - name: early-return
+        - name: empty-block
+        - name: empty-lines
+        - name: enforce-repeated-arg-type-style
+          arguments:
+            - "short"
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: flag-parameter
+        - name: get-return
+        - name: identical-branches
+        - name: if-return
+        - name: import-shadowing
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: modifies-parameter
+        - name: modifies-value-receiver
+        - name: nested-structs
+        - name: optimize-operands-order
+        - name: range
+        - name: range-val-address
+        - name: range-val-in-closure
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: redundant-build-tag
+        - name: redundant-import-alias
+        - name: redundant-test-main-exit
+        - name: string-of-int
+        - name: struct-tag
+        - name: superfluous-else
+        - name: time-date
+        - name: time-equal
+        - name: unchecked-type-assertion
+        - name: unconditional-recursion
+        - name: unexported-naming
+        - name: unexported-return
+        - name: unhandled-error
+        - name: unnecessary-format
+        - name: unnecessary-stmt
+        - name: unreachable-code
+        - name: unused-receiver
+        - name: use-any
+        - name: use-errors-new
+        - name: use-fmt-print
+        - name: useless-break
+        - name: var-declaration
+        - name: waitgroup-by-value
+
+    testifylint:
+      enable-all: true
+
+  exclusions:
+    rules:
+      - path: '_test.go'
+        linters:
+          - dupl
+          - exhaustruct
+          - gochecknoglobals
+
+      - source: '^func Test'
+        linters:
+          - funlen
+
+      - path: 'internal/server/handlers/items.go'
+        linters:
+          - gosec
+        text: 'G203'
+
+      - path: 'internal/model/model.go'
+        linters:
+          - govet
+        text: 'fieldalignment'
+
+formatters:
+  enable:
+    - gofmt # check if the code is formatted according to 'gofmt' command
+    - goimports # checks if the code and import statements are formatted according to the 'goimports' command
+    - golines # checks if code is formatted, and fixes long lines
+
+  settings:
+    gofmt:
+      rewrite-rules:
+        - pattern: 'interface{}'
+          replacement: 'any'
+
+    goimports:
+      local-prefixes:
+        - github.com/marchuknikolay/rss-parser
+
+    golines:
+      max-len: 120

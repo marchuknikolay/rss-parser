@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+
 	"github.com/marchuknikolay/rss-parser/internal/model"
 	"github.com/marchuknikolay/rss-parser/internal/storage"
 )
@@ -37,11 +38,13 @@ func (r *ItemRepository) Save(ctx context.Context, item model.Item, channelId in
 
 func (r *ItemRepository) GetAll(ctx context.Context) ([]model.Item, error) {
 	query := `SELECT id, title, description, pub_date FROM items`
+
 	return r.getItems(ctx, query)
 }
 
 func (r *ItemRepository) GetByChannelId(ctx context.Context, channelId int) ([]model.Item, error) {
 	query := `SELECT id, title, description, pub_date FROM items WHERE channel_id = $1`
+
 	return r.getItems(ctx, query, channelId)
 }
 
@@ -88,7 +91,12 @@ func (r *ItemRepository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *ItemRepository) Update(ctx context.Context, id int, title, description string, pubTime time.Time) (model.Item, error) {
+func (r *ItemRepository) Update(
+	ctx context.Context,
+	id int,
+	title, description string,
+	pubTime time.Time,
+) (model.Item, error) {
 	query := `
 		UPDATE items
 		SET title = $1, description = $2, pub_date = $3
@@ -101,7 +109,7 @@ func (r *ItemRepository) Update(ctx context.Context, id int, title, description 
 
 	var item model.Item
 	if err := row.Scan(&item.Id, &item.Title, &item.Description, &item.PubDate); err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Item{}, ErrItemNotFound
 		}
 

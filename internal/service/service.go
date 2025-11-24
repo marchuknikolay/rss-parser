@@ -149,11 +149,7 @@ func (s *Service) DeleteChannel(ctx context.Context, id int) error {
 			}
 		}
 
-		if err := channelRepository.Delete(ctx, id); err != nil {
-			return err
-		}
-
-		return nil
+		return channelRepository.Delete(ctx, id)
 	})
 }
 

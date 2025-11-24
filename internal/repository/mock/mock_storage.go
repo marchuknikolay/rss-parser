@@ -30,5 +30,5 @@ func (m MockStorage) WithTransaction(ctx context.Context, fn func(txStorage stor
 	return testutils.ErrNotImplemented
 }
 
-func (m MockStorage) Close() {
+func (MockStorage) Close() {
 }

@@ -24,11 +24,11 @@ func (m MockRows) Err() error {
 	return nil
 }
 
-func (m MockRows) CommandTag() pgconn.CommandTag {
+func (MockRows) CommandTag() pgconn.CommandTag {
 	return pgconn.CommandTag{}
 }
 
-func (m MockRows) FieldDescriptions() []pgconn.FieldDescription {
+func (MockRows) FieldDescriptions() []pgconn.FieldDescription {
 	return nil
 }
 
@@ -48,14 +48,14 @@ func (m MockRows) Scan(dest ...any) error {
 	return testutils.ErrNotImplemented
 }
 
-func (m MockRows) Values() ([]any, error) {
+func (MockRows) Values() ([]any, error) {
 	return nil, testutils.ErrNotImplemented
 }
 
-func (m MockRows) RawValues() [][]byte {
+func (MockRows) RawValues() [][]byte {
 	return nil
 }
 
-func (m MockRows) Conn() *pgx.Conn {
+func (MockRows) Conn() *pgx.Conn {
 	return nil
 }

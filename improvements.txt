@@ -1,5 +1,5 @@
 Improvements:
-- Linters (depguard, gomodguard, ireturn, revive)
+- Make type names like Renderer from small letters (effective go)
 - Refactor interface and type names
 - Update readme
 - Improve logging
